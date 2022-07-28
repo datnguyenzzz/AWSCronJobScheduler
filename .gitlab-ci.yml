@@ -6,7 +6,8 @@ build-job:
 test-job1:
   stage: test
   script:
-    - echo "Running test !!!"
+    - echo "Running test ..."
+    - echo "Tested successfully !!!"
 
 deploy-prod:
   stage: deploy
