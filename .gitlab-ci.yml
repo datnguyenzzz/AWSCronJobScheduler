@@ -1,5 +1,5 @@
 build-job:
-  stage:  build
+  stage: build
   script:
     - echo "Start building !!!"
 
