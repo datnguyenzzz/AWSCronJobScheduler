@@ -1,0 +1,14 @@
+build-job:
+  stage:  build
+  script:
+    - echo "Start building !!!"
+
+test-job1:
+  stage: test
+  script:
+    - echo "Running test !!!"
+
+deploy-prod:
+  stage: deploy
+  script:
+    - echo "Deploying code from the $CI_COMMIT_BRANCH branch"
