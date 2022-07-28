@@ -19,14 +19,20 @@ jobs:
   gitlab-sync:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    name: Github sync to Gitlab
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: wangchucheng/git-repo-sync@v0.1.0
+        with:
+          target-url: ${{secrets.GITLAB_URL}}
+          target-username: ${{secrets.TARGET_USERNAME}}
+          target-token: ${{secrets.TARGET_TOKEN}}
 
       # Runs a single command using the runners shell
-      - name: Start syncing master branch from GitHub to GitLab
-        run: echo syncing to GitLab...
+      - name: Syncing master branch from GitHub to GitLab
+        run: echo Syncing to GitLab...
