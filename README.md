@@ -6,7 +6,7 @@ Feature:
 
 Technologies stacks:
 
--   CircleCI for CI/CD pipeline
+-   Gitlab for CI/CD pipeline
 
 -   Spring frameworks
 
