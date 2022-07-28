@@ -1,15 +1,22 @@
-build-job:
+stages:
+  - build
+  - test
+  - deploy 
+
+build_project:
   stage: build
   script:
-    - echo "Start building !!!"
+    - echo "Start building project ...."
+    - echo "Done"
 
-test-job1:
+test_project:
   stage: test
   script:
-    - echo "Running test ..."
-    - echo "Tested successfully !!!"
+    - echo "Start testing ..."
+    - echo "Done"
 
-deploy-prod:
+deploy_project:
   stage: deploy
   script:
-    - echo "Deploying code from the $CI_COMMIT_BRANCH branch"
+    - echo "Start deploying ..."
+    - echo "Done"
