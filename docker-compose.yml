@@ -2,7 +2,7 @@ version: '3.8'
 services:
   scheduler:
     container_name: scheduler
-    image: datnguyen79198/AWSCronJobScheduler:latest
+    image: datnguyen79198/awscronjobscheduler:latest
     build: 
       context: ./Scheduler
     ports:

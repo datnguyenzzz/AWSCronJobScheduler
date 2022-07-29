@@ -15,7 +15,7 @@ build_docker_image:
   script:
     - echo "Start building docker image ..."
     - docker-compose up -d 
-    - docker-compose ps
+    - docker-compose down
     - echo "Done"
 
 test_internal_API:
