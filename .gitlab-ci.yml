@@ -7,6 +7,7 @@ build_dependencies:
   stage: build
   script:
     - echo "Start building dependencies ...."
+    - mvn clean install
     - echo "Done"
 
 build_docker_image:
@@ -15,10 +16,11 @@ build_docker_image:
     - echo "Start building docker image ..."
     - echo "Done"
 
-test_project:
+test_internal_API:
   stage: test
   script:
-    - echo "Start testing ..."
+    - echo "Start testing internal API..."
+    - mvn test
     - echo "Done"
 
 deploy_project:
