@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  scheduler:
+    container_name: scheduler
+    build: 
+      context: ./Scheduler
+    ports:
+      - 8765:8765
+    volumes:
+      - ./AWSCronJob/Scheduler/target/Scheduler-1.0-SNAPSHOT.jar:/AWSCronJob/scheduler.jar
+    command: "java -Xmx256m -jar /AWSCronJob/scheduler.jar"
