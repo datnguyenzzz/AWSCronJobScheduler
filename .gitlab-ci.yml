@@ -38,8 +38,6 @@ deploy_project:
     - docker-compose up -d
     - docker push "$CD_DOCKER_HUB_IMAGE"
     - docker-compose down
-    - docker volume prune  -f
-	  - docker container prune  -f
     - echo "Done"
   only:
     - master
