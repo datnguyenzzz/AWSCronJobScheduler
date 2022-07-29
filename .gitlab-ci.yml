@@ -11,7 +11,6 @@ build_dependencies:
     - echo "Done"
 
 build_docker_image:
-  image: AWSCronJobScheduler:latest
   stage: build
   script:
     - echo "Start building docker image ..."
@@ -27,7 +26,6 @@ test_internal_API:
     - echo "Done"
 
 deploy_project:
-  image: AWSCronJobScheduler:latest 
   stage: deploy
   services:
     - docker:dind
