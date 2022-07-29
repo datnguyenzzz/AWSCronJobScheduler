@@ -3,10 +3,16 @@ stages:
   - test
   - deploy 
 
-build_project:
+build_dependencies:
   stage: build
   script:
-    - echo "Start building project ...."
+    - echo "Start building dependencies ...."
+    - echo "Done"
+
+build_docker_image:
+  stage: build
+  script:
+    - echo "Start building docker image ..."
     - echo "Done"
 
 test_project:
