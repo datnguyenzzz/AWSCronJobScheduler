@@ -10,7 +10,7 @@ import com.github.datnguyenzzz.Exceptions.*;
 import lombok.Getter;
 
 @Component
-public class CronJobConfiguration {
+public class CronJobConfigurationComponent {
     
     @Getter
     private String cronJobDefinitionFile;
@@ -36,7 +36,7 @@ public class CronJobConfiguration {
     @Getter
     private String awsCredentialFile;
 
-    private final Logger logger = LoggerFactory.getLogger(CronJobConfiguration.class);
+    private final Logger logger = LoggerFactory.getLogger(CronJobConfigurationComponent.class);
 
     @PostConstruct
     public void init() throws Exception {
