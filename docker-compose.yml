@@ -9,4 +9,13 @@ services:
       - 8080:8080
     volumes:
       - ./Scheduler/target/Scheduler-1.0-SNAPSHOT.jar:/AWSCronJob/scheduler.jar
+    environment:
+      CRON_JOB_LOCATION: "cron job definition file"
+      HEALTH_CHECK_FREQUENCY: 10
+      CONSECUTIVE_ERROR_POSTPONE_THRESHOLD: 5
+      PERCENTAGE_ERROR_POSTPONE_THRESHOLD: 10
+      AWS_REGION: "eu-north-1"
+      AWS_ACCESS_KEY: "aws access key"
+      AWS_SECRET_KEY: "aws secret key"
+      AWS_CREDENTIALS_TARGET: "aws credentials file"
     command: "java -Xmx256m -jar /AWSCronJob/scheduler.jar"
