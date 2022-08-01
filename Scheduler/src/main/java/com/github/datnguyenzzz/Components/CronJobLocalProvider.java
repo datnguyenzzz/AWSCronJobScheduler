@@ -17,7 +17,7 @@ import com.github.datnguyenzzz.dto.Job;
 import com.github.datnguyenzzz.dto.JobListDefinition;
 import com.github.datnguyenzzz.dto.Message;
 
-@Component
+@Component("CronJobLocalProvider")
 public class CronJobLocalProvider implements CronJobProvider {
 
     @Autowired
@@ -35,7 +35,6 @@ public class CronJobLocalProvider implements CronJobProvider {
     public JobListDefinition getDefinition() {
 
         String locationFile = this.config.getCronJobDefinitionFile();
-        logger.info("Read job definition from LOCAL file");
         try {
             File file = new File(locationFile);
             JobListDefinition definition = this.mapper.readValue(file, JobListDefinition.class);
