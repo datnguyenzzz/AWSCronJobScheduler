@@ -20,5 +20,5 @@ public class JobDefinition {
     private String destinationService;
 
     @Getter @Setter
-    private String lambdaAction;
+    private String lambdaActionFile;
 }

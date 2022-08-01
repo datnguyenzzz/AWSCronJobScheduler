@@ -11,6 +11,9 @@ import lombok.Getter;
 
 @Component
 public class CronJobConfigurationComponent {
+
+    @Getter
+    private String cronJobProvider;
     
     @Getter
     private String cronJobDefinitionFile;
@@ -40,6 +43,16 @@ public class CronJobConfigurationComponent {
 
     @PostConstruct
     public void init() throws Exception {
+
+        this.cronJobProvider = System.getenv("CRON_JOB_PROVIDER");
+
+        if (this.cronJobProvider == null
+            || this.cronJobProvider.equals("")) {
+            this.logger.error("Missing cron job provider");
+            String msg = "Cron job provider is missing";
+            throw new MissingEnviromentVariablesException(msg);
+        }
+
         this.cronJobDefinitionFile = System.getenv("CRON_JOB_LOCATION");
         
         if (this.cronJobDefinitionFile == null
