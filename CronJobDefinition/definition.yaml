@@ -1,0 +1,14 @@
+jobList:
+  - name: "Upload to SQS #1"
+    cronTrigger: "0 0 0 1 2 2/3"
+    usedService: "SQS"
+    messages:
+      - key: "key-1"
+        value: "value-1"
+      - key: "key-2"
+        value: "value-2"
+
+  - name: "Upload to SQS #2"
+    usedService: "SQS"
+    afterJobDone: "Upload to SQS #1"
+    lambdaActionFile: "abc/def/xyz.java"

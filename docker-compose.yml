@@ -9,9 +9,10 @@ services:
       - 8080:8080
     volumes:
       - ./Scheduler/target/Scheduler-1.0-SNAPSHOT.jar:/AWSCronJob/scheduler.jar
+      - ./CronJobDefinition/definition.yaml:/AWSCronJob/definition.yaml
     environment:
       CRON_JOB_PROVIDER: "local"
-      CRON_JOB_LOCATION: "cron job definition file"
+      CRON_JOB_LOCATION: "/AWSCronJob/definition.yaml"
       HEALTH_CHECK_FREQUENCY: 10
       CONSECUTIVE_ERROR_POSTPONE_THRESHOLD: 5
       PERCENTAGE_ERROR_POSTPONE_THRESHOLD: 10
