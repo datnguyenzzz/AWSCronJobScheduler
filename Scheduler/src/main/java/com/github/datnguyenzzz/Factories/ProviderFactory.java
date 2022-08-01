@@ -11,7 +11,7 @@ import com.github.datnguyenzzz.Components.CronJobConfiguration;
 import com.github.datnguyenzzz.Interfaces.CronJobProvider;
 import com.github.datnguyenzzz.dto.JobListDefinition;
 
-@Component
+@Component("providerFactory")
 public class ProviderFactory implements FactoryBean<CronJobProvider> {
 
     @Autowired
@@ -31,11 +31,11 @@ public class ProviderFactory implements FactoryBean<CronJobProvider> {
         }
         else if (providerType.equals("local")) {
             logger.info("Read job definition from LOCAL");
-            return (CronJobProvider) ctx.getBean("CronJobLocalProvider");
+            return (CronJobProvider) ctx.getBean("cronJobLocalProvider");
         }
         else if (providerType.equals("S3")) {
             logger.info("Read job definition from S3");
-            return (CronJobProvider) ctx.getBean("CronJobLocalProvider");
+            return (CronJobProvider) ctx.getBean("cronJobLocalProvider");
         }
         else {
             logger.info("Provider is not supported");

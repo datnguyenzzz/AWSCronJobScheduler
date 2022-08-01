@@ -17,7 +17,7 @@ import com.github.datnguyenzzz.dto.AWSJob;
 import com.github.datnguyenzzz.dto.JobListDefinition;
 import com.github.datnguyenzzz.dto.Message;
 
-@Component("CronJobLocalProvider")
+@Component("cronJobLocalProvider")
 public class CronJobLocalProvider implements CronJobProvider {
 
     @Autowired
