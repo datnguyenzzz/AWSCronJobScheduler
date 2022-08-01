@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.github.datnguyenzzz.Exceptions.SystemException;
 import com.github.datnguyenzzz.Interfaces.CronJobProvider;
-import com.github.datnguyenzzz.dto.Job;
+import com.github.datnguyenzzz.dto.AWSJob;
 import com.github.datnguyenzzz.dto.JobListDefinition;
 import com.github.datnguyenzzz.dto.Message;
 
@@ -40,7 +40,7 @@ public class CronJobLocalProvider implements CronJobProvider {
             JobListDefinition definition = this.mapper.readValue(file, JobListDefinition.class);
             //loggin
             logger.info(locationFile);
-            for (Job job : definition.getJobList()) {
+            for (AWSJob job : definition.getJobList()) {
                 logger.info(job.getName());
                 logger.info(job.getCronTrigger());
                 logger.info(job.getLambdaActionFile());

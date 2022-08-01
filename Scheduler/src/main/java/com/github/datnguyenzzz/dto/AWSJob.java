@@ -5,7 +5,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
-public class Job {
+public class AWSJob {
     
     @Getter @Setter
     private String name;

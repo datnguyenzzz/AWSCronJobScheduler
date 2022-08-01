@@ -8,5 +8,5 @@ import lombok.Setter;
 public class JobListDefinition {
     
     @Getter @Setter
-    private List<Job> jobList;
+    private List<AWSJob> jobList;
 }
