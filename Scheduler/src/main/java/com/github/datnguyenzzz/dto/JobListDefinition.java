@@ -1,5 +1,6 @@
 package com.github.datnguyenzzz.dto;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,7 @@ public class JobListDefinition {
     @Getter
     private Map<String, AWSJob> jobHashMap = new HashMap<>();
     @Getter
-    private Map<String, String> jobExecutionOrder = new HashMap<>();
+    private Map<String, List<String>> jobExecutionOrder = new HashMap<>();
 
     public void updateRelation() {
         for (AWSJob job: jobList) {
@@ -28,7 +29,10 @@ public class JobListDefinition {
             String jobName = job.getName();
             String jobBefore = job.getAfterJobDone();
 
-            this.jobExecutionOrder.put(jobBefore, jobName);
+            if (!this.jobExecutionOrder.containsKey(jobBefore))
+                this.jobExecutionOrder.put(jobBefore, new ArrayList<>());
+
+            this.jobExecutionOrder.get(jobBefore).add(jobName);
         }
     }
     
