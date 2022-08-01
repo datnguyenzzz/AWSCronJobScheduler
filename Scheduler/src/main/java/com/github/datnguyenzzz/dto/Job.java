@@ -1,23 +1,26 @@
 package com.github.datnguyenzzz.dto;
 
-import java.util.Map;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
 
-public class JobDefinition {
+public class Job {
     
+    @Getter @Setter
+    private String name;
+
     @Getter @Setter
     private String cronTrigger;
 
     @Getter @Setter
-    private Map<Object, Object> message;
+    private List<Message> messages;
 
     @Getter @Setter
-    private String originService;
+    private String usedService;
 
     @Getter @Setter
-    private String destinationService;
+    private String afterJobDone;
 
     @Getter @Setter
     private String lambdaActionFile;
