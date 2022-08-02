@@ -13,6 +13,10 @@ jobList:
     afterJobDone: "Upload to SQS #1"
     lambdaActionFile: "abc/def/xyz.java"
   
+  - name: "Upload to S3"
+    usedService: "S3"
+    afterJobDone: "Upload to SQS #2"
+  
   - name: "Upload to SQS #3"
     cronTrigger: "0 12 2 1 2/3 * *"
     usedService: "SQS"
