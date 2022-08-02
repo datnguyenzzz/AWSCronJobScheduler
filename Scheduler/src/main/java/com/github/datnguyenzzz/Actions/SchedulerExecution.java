@@ -53,10 +53,6 @@ public class SchedulerExecution {
         }
     }
 
-    private JobDetail genJobDetail(AWSJob awsJob) {
-        return null;
-    }
-
     private void bfs(JobListDefinition jobList) {
 
         Map<String, AWSJob> jobHashMap = jobList.getJobHashMap();
@@ -87,11 +83,7 @@ public class SchedulerExecution {
 
             //TODO: Add jobNow to scheduler
             AWSJob awsJobNow = jobHashMap.get(jobNow);
-            JobDetail awsJobDetail = genJobDetail(awsJobNow);
-            //Get corresponding publisher
-            AWSPublisher publisher = this.publisherFactory.getObject(awsJobNow.getUsedService());
-            //Example calling publisher
-            //publisher.publish(awsJobNow);
+            addJobToSchedule(awsJobNow);
 
             if (!jobExecutionOrder.containsKey(jobNow)) continue;
 
@@ -106,6 +98,18 @@ public class SchedulerExecution {
                 dq.add(jobNext);
             }
         }
+    }
+
+    private JobDetail genJobDetail(AWSJob awsJob) {
+        return null;
+    }
+
+    private void addJobToSchedule(AWSJob job) {
+        JobDetail awsJobDetail = genJobDetail(job);
+        //Get corresponding publisher
+        AWSPublisher publisher = this.publisherFactory.getObject(job.getUsedService());
+        //Example calling publisher
+        //publisher.publish(awsJobNow); 
     }
 
     public void start() {

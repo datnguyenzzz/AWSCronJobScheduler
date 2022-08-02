@@ -13,8 +13,8 @@ import com.github.datnguyenzzz.Exceptions.SystemException;
 import com.github.datnguyenzzz.Interfaces.CronJobProvider;
 import com.github.datnguyenzzz.dto.JobListDefinition;
 
-@Component("cronJobLocalProvider")
-public class CronJobLocalProvider implements CronJobProvider {
+@Component("localCronJobProvider")
+public class LocalCronJobProvider implements CronJobProvider {
 
     @Autowired
     private CronJobConfiguration config;

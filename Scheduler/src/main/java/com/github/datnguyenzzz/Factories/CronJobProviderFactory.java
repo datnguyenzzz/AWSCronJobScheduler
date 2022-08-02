@@ -23,6 +23,8 @@ import com.github.datnguyenzzz.dto.JobListDefinition;
 @Scope("prototype")
 public class CronJobProviderFactory implements FactoryBean<CronJobProvider> {
 
+    private final String CRONJOB_PROVIDER = "CronJobProvider";
+
     @Autowired
     private CronJobConfiguration config;
 
@@ -38,18 +40,22 @@ public class CronJobProviderFactory implements FactoryBean<CronJobProvider> {
             logger.info("Provider type is missing");
             return null;
         }
-        else if (providerType.equals("local")) {
-            logger.info("Read job definition from LOCAL");
-            return (CronJobProvider) ctx.getBean("cronJobLocalProvider");
-        }
-        else if (providerType.equals("S3")) {
-            logger.info("Read job definition from S3");
-            return (CronJobProvider) ctx.getBean("cronJobLocalProvider");
+        else if (providerType.equals("local")
+                || providerType.equals("S3")) {
+            logger.info("Read job definition from " + providerType);
+            return (CronJobProvider) ctx.getBean(getTargetProvider(providerType));
         }
         else {
             logger.info("Provider is not supported");
             return null;
         }
+    }
+
+    private String getTargetProvider(String name) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(name.toLowerCase());
+        sb.append(CRONJOB_PROVIDER);
+        return sb.toString();
     }
 
     @Override
