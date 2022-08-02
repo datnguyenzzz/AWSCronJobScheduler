@@ -69,7 +69,9 @@ public class SchedulerExecution {
         while (dq.size() > 0) {
             String jobNow = dq.pollFirst();
 
-            logger.info("Trigger: " + jobNow);
+            //loggin
+            logger.info("Triggered job: \n");
+            logger.info(jobList.getJobHashMap().get(jobNow).toString());
             
             //TODO: Add jobNow to scheduler
             JobDetail awsJobDetail = genJobDetail(jobList.getJobHashMap().get(jobNow));
@@ -94,7 +96,7 @@ public class SchedulerExecution {
     public void start() {
         logger.info("Start scheduler execution ...");
 
-        CronJobProvider provider = ctx.getBean("providerFactory", CronJobProvider.class);
+        CronJobProvider provider = ctx.getBean("cronJobProviderFactory", CronJobProvider.class);
         JobListDefinition jobList = provider.getDefinition();
         jobList.updateRelation();
 

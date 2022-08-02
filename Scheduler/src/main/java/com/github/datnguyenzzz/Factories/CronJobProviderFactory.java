@@ -11,8 +11,15 @@ import com.github.datnguyenzzz.Components.CronJobConfiguration;
 import com.github.datnguyenzzz.Interfaces.CronJobProvider;
 import com.github.datnguyenzzz.dto.JobListDefinition;
 
-@Component("providerFactory")
-public class ProviderFactory implements FactoryBean<CronJobProvider> {
+/**
+ * Currently have:
+ * - CronJobLocalProvider
+ * - CronJobS3Provider
+ * 
+ * implement interface CronJobProvider
+ */
+@Component("cronJobProviderFactory")
+public class CronJobProviderFactory implements FactoryBean<CronJobProvider> {
 
     @Autowired
     private CronJobConfiguration config;
@@ -20,7 +27,7 @@ public class ProviderFactory implements FactoryBean<CronJobProvider> {
     @Autowired
     private ApplicationContext ctx;
 
-    private final Logger logger = LoggerFactory.getLogger(ProviderFactory.class);
+    private final Logger logger = LoggerFactory.getLogger(CronJobProviderFactory.class);
 
     @Override
     public CronJobProvider getObject() throws Exception {
