@@ -14,9 +14,13 @@ public class AWSKinesisPublisher implements AWSPublisher {
 
     @Override
     public void publish(AWSJob awsJob) {
-        // TODO Auto-generated method stub
         logger.info("Using AWS Kinesis to publish message !!!");
         
+    }
+
+    @Override
+    public void publish(String content) {
+        logger.info("Using AWS Kinesis to publish message - " + content + " !!!");
     }
     
 }

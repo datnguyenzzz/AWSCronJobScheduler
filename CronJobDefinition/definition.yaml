@@ -13,7 +13,7 @@ jobList:
     afterJobDone: "Upload to SQS #1"
     lambdaActionFile: "abc/def/xyz.java"
   
-  - name: "Upload to Kinesis"
+  - name: "Upload to Kinesis # 4"
     usedService: "Kinesis"
     afterJobDone: "Upload to SQS #2"
   

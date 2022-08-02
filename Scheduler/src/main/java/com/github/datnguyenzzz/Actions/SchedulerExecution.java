@@ -9,18 +9,25 @@ import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
+import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
+import org.quartz.JobKey;
 import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.SimpleScheduleBuilder;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
+import org.quartz.impl.matchers.GroupMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import com.github.datnguyenzzz.Components.PublishingJob;
 import com.github.datnguyenzzz.Exceptions.SystemException;
-import com.github.datnguyenzzz.Factories.AWSPublisherFactory;
-import com.github.datnguyenzzz.Interfaces.AWSPublisher;
+import com.github.datnguyenzzz.Factories.PublishingJobFactory;
 import com.github.datnguyenzzz.Interfaces.CronJobProvider;
 import com.github.datnguyenzzz.dto.AWSJob;
 import com.github.datnguyenzzz.dto.JobListDefinition;
@@ -31,9 +38,11 @@ public class SchedulerExecution {
     @Autowired
     private ApplicationContext ctx;
 
+    @Autowired
+    private PublishingJobFactory publishingJobFactory;
+
     private Scheduler scheduler;
     private CronJobProvider provider;
-    private AWSPublisherFactory publisherFactory;
     
     private final Logger logger = LoggerFactory.getLogger(SchedulerExecution.class);
 
@@ -42,10 +51,12 @@ public class SchedulerExecution {
     @PostConstruct
     private void init() {
         provider = ctx.getBean("cronJobProviderFactory", CronJobProvider.class);
-        publisherFactory = ctx.getBean("awsPublisherFactory", AWSPublisherFactory.class);
         try {
             this.scheduler = StdSchedulerFactory.getDefaultScheduler();
-            //TODO: need job factory, in order to instance job bean
+
+            //need job factory, in order to instance job bean
+            //because I pass job as bean
+            this.scheduler.setJobFactory(this.publishingJobFactory);
             
             this.scheduler.start();
         } catch (Exception ex) {
@@ -53,7 +64,7 @@ public class SchedulerExecution {
         }
     }
 
-    private void bfs(JobListDefinition jobList) {
+    private void bfs(JobListDefinition jobList) throws SchedulerException {
 
         Map<String, AWSJob> jobHashMap = jobList.getJobHashMap();
         Map<String, List<String>> jobExecutionOrder = jobList.getJobExecutionOrder();
@@ -81,38 +92,53 @@ public class SchedulerExecution {
             logger.info("Triggered job: \n");
             logger.info(jobHashMap.get(jobNow).toString());
 
-            //TODO: Add jobNow to scheduler
+            //TODO: Init Job Detail
             AWSJob awsJobNow = jobHashMap.get(jobNow);
-            addJobToSchedule(awsJobNow);
+            JobDetail awsJobDetail = genJobDetail(awsJobNow);
 
-            if (!jobExecutionOrder.containsKey(jobNow)) continue;
+            if (jobExecutionOrder.containsKey(jobNow)) {
 
-            for (String jobNext : jobExecutionOrder.get(jobNow)) {
+                for (String jobNext : jobExecutionOrder.get(jobNow)) {
 
-                if (visited.contains(jobNext)) continue;
+                    if (visited.contains(jobNext)) continue;
 
-                //TODO: Set up trigger JobNext after JobNow
-                //TODO: By setting Job/Trigger listener
+                    //TODO: Set up trigger JobNext after JobNow
+                    //TODO: By setting Job/Trigger listener
 
-                visited.add(jobNext);
-                dq.add(jobNext);
+                    visited.add(jobNext);
+                    dq.add(jobNext);
+                }
             }
+
+            //Example trigger
+            Trigger trigger = TriggerBuilder.newTrigger()
+                .withIdentity(awsJobNow.getName(), "Trigger-publish-group")
+                .startNow()
+                .withSchedule(
+                    SimpleScheduleBuilder.simpleSchedule()
+                                         .withIntervalInSeconds(30)
+                                         .repeatForever()
+                    )            
+                .build();
+
+            //Add jobNow to scheduler
+            this.scheduler.scheduleJob(awsJobDetail, trigger);
         }
     }
 
     private JobDetail genJobDetail(AWSJob awsJob) {
-        return null;
+        //Pass usedService paramenter into Job description, 
+        //in order to get corresponding Bean ....AWSPublisher
+        JobDetail awsJobDetail = JobBuilder.newJob(PublishingJob.class)
+                                        .withDescription(awsJob.getUsedService())
+                                        .withIdentity(awsJob.getName(), "Job-publish-group")
+                                        .build();
+        
+        //TODO: Build job data KV store
+        return awsJobDetail;
     }
 
-    private void addJobToSchedule(AWSJob job) {
-        JobDetail awsJobDetail = genJobDetail(job);
-        //Get corresponding publisher
-        AWSPublisher publisher = this.publisherFactory.getObject(job.getUsedService());
-        //Example calling publisher
-        //publisher.publish(awsJobNow); 
-    }
-
-    public void start() {
+    public void start() throws SchedulerException {
         logger.info("Start scheduler execution ...");
 
         JobListDefinition jobList = provider.getDefinition();
@@ -120,5 +146,13 @@ public class SchedulerExecution {
 
         // execute job list by BFS order
         bfs(jobList);
+
+        //loggin all job
+        for(String group: this.scheduler.getJobGroupNames()) {
+            // enumerate each job in group
+            for(JobKey jobKey : this.scheduler.getJobKeys(GroupMatcher.groupEquals(group))) {
+                logger.info("Found job identified by: " + jobKey.toString());
+            }
+        }
     }
 }
