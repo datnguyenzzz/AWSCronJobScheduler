@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.github.datnguyenzzz.Components.CronJobConfiguration;
@@ -12,13 +13,14 @@ import com.github.datnguyenzzz.Interfaces.CronJobProvider;
 import com.github.datnguyenzzz.dto.JobListDefinition;
 
 /**
- * Currently have:
- * - CronJobLocalProvider
- * - CronJobS3Provider
+ * Currently have bean:
+ * - cronJobLocalProvider
+ * - cronJobS3Provider
  * 
  * implement interface CronJobProvider
  */
 @Component("cronJobProviderFactory")
+@Scope("prototype")
 public class CronJobProviderFactory implements FactoryBean<CronJobProvider> {
 
     @Autowired

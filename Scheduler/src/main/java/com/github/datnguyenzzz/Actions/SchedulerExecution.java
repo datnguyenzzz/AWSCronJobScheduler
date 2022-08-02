@@ -3,6 +3,8 @@ package com.github.datnguyenzzz.Actions;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -17,6 +19,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import com.github.datnguyenzzz.Exceptions.SystemException;
+import com.github.datnguyenzzz.Factories.AWSPublisherFactory;
+import com.github.datnguyenzzz.Interfaces.AWSPublisher;
 import com.github.datnguyenzzz.Interfaces.CronJobProvider;
 import com.github.datnguyenzzz.dto.AWSJob;
 import com.github.datnguyenzzz.dto.JobListDefinition;
@@ -28,6 +32,8 @@ public class SchedulerExecution {
     private ApplicationContext ctx;
 
     private Scheduler scheduler;
+    private CronJobProvider provider;
+    private AWSPublisherFactory publisherFactory;
     
     private final Logger logger = LoggerFactory.getLogger(SchedulerExecution.class);
 
@@ -35,6 +41,8 @@ public class SchedulerExecution {
 
     @PostConstruct
     private void init() {
+        provider = ctx.getBean("cronJobProviderFactory", CronJobProvider.class);
+        publisherFactory = ctx.getBean("awsPublisherFactory", AWSPublisherFactory.class);
         try {
             this.scheduler = StdSchedulerFactory.getDefaultScheduler();
             //TODO: need job factory, in order to instance job bean
@@ -50,16 +58,20 @@ public class SchedulerExecution {
     }
 
     private void bfs(JobListDefinition jobList) {
+
+        Map<String, AWSJob> jobHashMap = jobList.getJobHashMap();
+        Map<String, List<String>> jobExecutionOrder = jobList.getJobExecutionOrder();
+
         Deque<String> dq = new LinkedList<>();
 
         Set<String> visited = new HashSet<>();
 
-        for (String jobName: jobList.getJobHashMap().keySet())
+        for (String jobName: jobHashMap.keySet())
             visited.add(jobName);
 
-        for (String jobName: jobList.getJobHashMap().keySet()) {
-            if (!jobList.getJobExecutionOrder().containsKey(jobName)) continue;
-            for (String jobNext : jobList.getJobExecutionOrder().get(jobName)) 
+        for (String jobName: jobHashMap.keySet()) {
+            if (!jobExecutionOrder.containsKey(jobName)) continue;
+            for (String jobNext : jobExecutionOrder.get(jobName)) 
                 visited.remove(jobNext);
         }
 
@@ -71,16 +83,19 @@ public class SchedulerExecution {
 
             //loggin
             logger.info("Triggered job: \n");
-            logger.info(jobList.getJobHashMap().get(jobNow).toString());
-            
+            logger.info(jobHashMap.get(jobNow).toString());
+
             //TODO: Add jobNow to scheduler
-            JobDetail awsJobDetail = genJobDetail(jobList.getJobHashMap().get(jobNow));
-            
-            //
+            AWSJob awsJobNow = jobHashMap.get(jobNow);
+            JobDetail awsJobDetail = genJobDetail(awsJobNow);
+            //Get corresponding publisher
+            AWSPublisher publisher = this.publisherFactory.getObject(awsJobNow.getUsedService());
+            //Example calling publisher
+            //publisher.publish(awsJobNow);
 
-            if (!jobList.getJobExecutionOrder().containsKey(jobNow)) continue;
+            if (!jobExecutionOrder.containsKey(jobNow)) continue;
 
-            for (String jobNext : jobList.getJobExecutionOrder().get(jobNow)) {
+            for (String jobNext : jobExecutionOrder.get(jobNow)) {
 
                 if (visited.contains(jobNext)) continue;
 
@@ -96,7 +111,6 @@ public class SchedulerExecution {
     public void start() {
         logger.info("Start scheduler execution ...");
 
-        CronJobProvider provider = ctx.getBean("cronJobProviderFactory", CronJobProvider.class);
         JobListDefinition jobList = provider.getDefinition();
         jobList.updateRelation();
 
