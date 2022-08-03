@@ -174,7 +174,11 @@ public class SchedulerExecution {
      * @return JobKey
      */
     private JobKey getJobKey(AWSJob job, String group) {
-        return new JobKey(job.getName(), group);
+        StringBuilder sb = new StringBuilder();
+        sb.append(group);
+        sb.append("-");
+        sb.append(job.getUsedService().toUpperCase());
+        return new JobKey(job.getName(), sb.toString());
     }
 
     public void start() throws SchedulerException {
