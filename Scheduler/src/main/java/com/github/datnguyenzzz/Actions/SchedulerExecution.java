@@ -10,17 +10,15 @@ import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
+import org.quartz.CronScheduleBuilder;
 import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
-import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
-import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
-import org.quartz.impl.matchers.GroupMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +47,7 @@ public class SchedulerExecution {
 
     private Scheduler scheduler;
     private CronJobProvider provider;
+    private Map<String, Map<String, Object>> storeJobDataMap;
     
     private final Logger logger = LoggerFactory.getLogger(SchedulerExecution.class);
 
@@ -56,6 +55,7 @@ public class SchedulerExecution {
 
     @PostConstruct
     private void init() {
+        storeJobDataMap = new HashMap<>();
         provider = ctx.getBean("cronJobProviderFactory", CronJobProvider.class);
         try {
             this.scheduler = StdSchedulerFactory.getDefaultScheduler();
@@ -79,8 +79,11 @@ public class SchedulerExecution {
 
         Set<String> visited = new HashSet<>();
 
-        for (String jobName: jobHashMap.keySet())
+        for (String jobName: jobHashMap.keySet()) {
+            // init store data map
+            this.storeJobDataMap.put(jobName, new HashMap<>());
             visited.add(jobName);
+        }
 
         for (String jobName: jobHashMap.keySet()) {
             if (!jobExecutionOrder.containsKey(jobName)) continue;
@@ -98,7 +101,7 @@ public class SchedulerExecution {
             logger.info("Triggered job: \n");
             logger.info(jobHashMap.get(jobNow).toString());
 
-            //TODO: Init Job Detail
+            //Init Job Detail
             AWSJob awsJobNow = jobHashMap.get(jobNow);
             JobDetail awsJobDetail = genJobDetail(awsJobNow);
 
@@ -120,26 +123,27 @@ public class SchedulerExecution {
             Trigger trigger = (Trigger) jobDataMap.get(JOB_TRIGGER);
 
             //Add jobNow to scheduler
-            this.scheduler.scheduleJob(awsJobDetail, trigger);
+            if (trigger != null) {
+                this.scheduler.scheduleJob(awsJobDetail, trigger);
+            }
         }
     }
 
     private JobDetail genJobDetail(AWSJob awsJob) {
-
         //TODO: Pack Trigger into jobDetail
-        //Example trigger
-        Trigger trigger = TriggerBuilder.newTrigger()
-        .withIdentity(awsJob.getName(), "Trigger-publish-group")
-        .startNow()
-        .withSchedule(
-            SimpleScheduleBuilder.simpleSchedule()
-                                 .withIntervalInSeconds(10)
-                                 .repeatForever()
-            )            
-        .build();
+        Trigger trigger = null;
         
-        //TODO: Build job data KV store
-        Map<String, Object> hMap = new HashMap<>();
+        if (awsJob.getCronTrigger() != null) {
+            trigger = TriggerBuilder.newTrigger()
+                        .withIdentity(awsJob.getName(), "Trigger-publish-group")
+                        .withSchedule(
+                            CronScheduleBuilder.cronSchedule(awsJob.getCronTrigger())
+                        )            
+                        .build();
+        }
+        
+        //Get job data KV store by name from global store
+        Map<String, Object> hMap = this.storeJobDataMap.get(awsJob.getName());
         hMap.put(JOB_TRIGGER, trigger);
 
         if (awsJob.getLambdaActionFile() != null) 

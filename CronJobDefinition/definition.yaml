@@ -1,6 +1,7 @@
+#http://www.quartz-scheduler.org/documentation/2.4.0-SNAPSHOT/tutorials/tutorial-lesson-06.html
 jobList:
   - name: "Upload to SQS #1"
-    cronTrigger: "0 0 0 1 2 2/3"
+    cronTrigger: "0/5 * * * * ?"
     usedService: "SQS"
     messages:
       - key: "key-1"
@@ -18,6 +19,6 @@ jobList:
     afterJobDone: "Upload to SQS #2"
   
   - name: "Upload to Kinesis #3"
-    cronTrigger: "0 12 2 1 2/3 * *"
+    cronTrigger: "0/10 * * * * ?"
     usedService: "Kinesis"
     lambdaActionFile: "xyz/ghi/dfc.java"
