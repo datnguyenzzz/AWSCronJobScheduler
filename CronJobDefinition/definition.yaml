@@ -1,4 +1,5 @@
 #http://www.quartz-scheduler.org/documentation/2.4.0-SNAPSHOT/tutorials/tutorial-lesson-06.html
+#supported tree architecture only
 jobList:
   - name: "Upload to SQS #1"
     cronTrigger: "0/5 * * * * ?"

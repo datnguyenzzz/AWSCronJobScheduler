@@ -14,11 +14,10 @@ import org.quartz.CronScheduleBuilder;
 import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
-import org.quartz.Scheduler;
+import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
-import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +25,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import com.github.datnguyenzzz.Components.PublishingJob;
-import com.github.datnguyenzzz.Exceptions.SystemException;
-import com.github.datnguyenzzz.Factories.PublishingJobFactory;
+import com.github.datnguyenzzz.Components.QuartzScheduler;
 import com.github.datnguyenzzz.Interfaces.CronJobProvider;
 import com.github.datnguyenzzz.dto.AWSJob;
 import com.github.datnguyenzzz.dto.JobListDefinition;
@@ -38,14 +36,15 @@ public class SchedulerExecution {
 
     private final static String JOB_TRIGGER = "jobTrigger";
     private final static String ACTION_FILE = "lambdaActionFile";
+    private final static String PUBLISH_JOB_GROUP = "Job-publish-group";
+    private final static String PUBLISH_TRIGGER_GROUP = "Trigger-publish-group";
 
     @Autowired
     private ApplicationContext ctx;
 
     @Autowired
-    private PublishingJobFactory publishingJobFactory;
+    private QuartzScheduler scheduler;
 
-    private Scheduler scheduler;
     private CronJobProvider provider;
     private Map<String, Map<String, Object>> storeJobDataMap;
     
@@ -57,17 +56,6 @@ public class SchedulerExecution {
     private void init() {
         storeJobDataMap = new HashMap<>();
         provider = ctx.getBean("cronJobProviderFactory", CronJobProvider.class);
-        try {
-            this.scheduler = StdSchedulerFactory.getDefaultScheduler();
-
-            //need job factory, in order to instance job bean
-            //because I pass job as bean
-            this.scheduler.setJobFactory(this.publishingJobFactory);
-            
-            this.scheduler.start();
-        } catch (Exception ex) {
-            throw new SystemException(ex.getMessage());
-        }
     }
 
     private void bfs(JobListDefinition jobList) throws SchedulerException {
@@ -112,7 +100,8 @@ public class SchedulerExecution {
                     if (visited.contains(jobNext)) continue;
 
                     //TODO: Set up trigger JobNext after JobNow
-                    //TODO: By setting Job/Trigger listener
+                    //TODO: By setting Job listener of jobNow after fired
+                    //jobNext must execute after jobNow
 
                     visited.add(jobNext);
                     dq.add(jobNext);
@@ -125,20 +114,29 @@ public class SchedulerExecution {
             //Add jobNow to scheduler
             if (trigger != null) {
                 this.scheduler.scheduleJob(awsJobDetail, trigger);
+            } else {
+                //this mean job is executed after another job fire
+                //store job into scheduler for future run
+                this.scheduler.addJob(awsJobDetail, false);
             }
         }
     }
 
+    /**
+     * 
+     * @param awsJob
+     * @return JobDeTail
+     */
     private JobDetail genJobDetail(AWSJob awsJob) {
         //TODO: Pack Trigger into jobDetail
         Trigger trigger = null;
         
         if (awsJob.getCronTrigger() != null) {
             trigger = TriggerBuilder.newTrigger()
-                        .withIdentity(awsJob.getName(), "Trigger-publish-group")
+                        .withIdentity(awsJob.getName(), PUBLISH_TRIGGER_GROUP)
                         .withSchedule(
                             CronScheduleBuilder.cronSchedule(awsJob.getCronTrigger())
-                        )            
+                        )      
                         .build();
         }
         
@@ -154,15 +152,29 @@ public class SchedulerExecution {
                 hMap.put(mes.getKey(), mes.getValue());
         }
 
+        boolean isNeededDurable = (awsJob.getCronTrigger() != null 
+                                || awsJob.getAfterJobDone() != null);
+
         //Pass usedService paramenter into Job description, 
         //in order to get corresponding Bean ....AWSPublisher
         JobDetail awsJobDetail = JobBuilder.newJob(PublishingJob.class)
                                         .withDescription(awsJob.getUsedService())
-                                        .withIdentity(awsJob.getName(), "Job-publish-group")
+                                        .withIdentity(getJobKey(awsJob, PUBLISH_JOB_GROUP))
+                                        .storeDurably(isNeededDurable)
                                         .usingJobData(new JobDataMap(hMap))
                                         .build();
 
         return awsJobDetail;
+    }
+
+    /**
+     * 
+     * @param job
+     * @param group
+     * @return JobKey
+     */
+    private JobKey getJobKey(AWSJob job, String group) {
+        return new JobKey(job.getName(), group);
     }
 
     public void start() throws SchedulerException {
