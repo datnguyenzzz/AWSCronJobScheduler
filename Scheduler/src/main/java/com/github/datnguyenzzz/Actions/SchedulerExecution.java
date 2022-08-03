@@ -1,6 +1,7 @@
 package com.github.datnguyenzzz.Actions;
 
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 
 import org.quartz.JobBuilder;
+import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
@@ -31,9 +33,13 @@ import com.github.datnguyenzzz.Factories.PublishingJobFactory;
 import com.github.datnguyenzzz.Interfaces.CronJobProvider;
 import com.github.datnguyenzzz.dto.AWSJob;
 import com.github.datnguyenzzz.dto.JobListDefinition;
+import com.github.datnguyenzzz.dto.Message;
 
 @Component
 public class SchedulerExecution {
+
+    private final static String JOB_TRIGGER = "jobTrigger";
+    private final static String ACTION_FILE = "lambdaActionFile";
 
     @Autowired
     private ApplicationContext ctx;
@@ -110,16 +116,8 @@ public class SchedulerExecution {
                 }
             }
 
-            //Example trigger
-            Trigger trigger = TriggerBuilder.newTrigger()
-                .withIdentity(awsJobNow.getName(), "Trigger-publish-group")
-                .startNow()
-                .withSchedule(
-                    SimpleScheduleBuilder.simpleSchedule()
-                                         .withIntervalInSeconds(30)
-                                         .repeatForever()
-                    )            
-                .build();
+            JobDataMap jobDataMap = awsJobDetail.getJobDataMap();
+            Trigger trigger = (Trigger) jobDataMap.get(JOB_TRIGGER);
 
             //Add jobNow to scheduler
             this.scheduler.scheduleJob(awsJobDetail, trigger);
@@ -127,14 +125,39 @@ public class SchedulerExecution {
     }
 
     private JobDetail genJobDetail(AWSJob awsJob) {
+
+        //TODO: Pack Trigger into jobDetail
+        //Example trigger
+        Trigger trigger = TriggerBuilder.newTrigger()
+        .withIdentity(awsJob.getName(), "Trigger-publish-group")
+        .startNow()
+        .withSchedule(
+            SimpleScheduleBuilder.simpleSchedule()
+                                 .withIntervalInSeconds(10)
+                                 .repeatForever()
+            )            
+        .build();
+        
+        //TODO: Build job data KV store
+        Map<String, Object> hMap = new HashMap<>();
+        hMap.put(JOB_TRIGGER, trigger);
+
+        if (awsJob.getLambdaActionFile() != null) 
+            hMap.put(ACTION_FILE, awsJob.getLambdaActionFile());
+
+        if (awsJob.getMessages() != null) {
+            for (Message mes: awsJob.getMessages()) 
+                hMap.put(mes.getKey(), mes.getValue());
+        }
+
         //Pass usedService paramenter into Job description, 
         //in order to get corresponding Bean ....AWSPublisher
         JobDetail awsJobDetail = JobBuilder.newJob(PublishingJob.class)
                                         .withDescription(awsJob.getUsedService())
                                         .withIdentity(awsJob.getName(), "Job-publish-group")
+                                        .usingJobData(new JobDataMap(hMap))
                                         .build();
-        
-        //TODO: Build job data KV store
+
         return awsJobDetail;
     }
 
@@ -148,11 +171,10 @@ public class SchedulerExecution {
         bfs(jobList);
 
         //loggin all job
-        for(String group: this.scheduler.getJobGroupNames()) {
-            // enumerate each job in group
-            for(JobKey jobKey : this.scheduler.getJobKeys(GroupMatcher.groupEquals(group))) {
-                logger.info("Found job identified by: " + jobKey.toString());
-            }
-        }
+        //for(String group: this.scheduler.getJobGroupNames()) {
+        //    for(JobKey jobKey : this.scheduler.getJobKeys(GroupMatcher.groupEquals(group))) {
+        //        logger.info("Found job identified by: " + jobKey.toString());
+        //    }
+        //}
     }
 }
