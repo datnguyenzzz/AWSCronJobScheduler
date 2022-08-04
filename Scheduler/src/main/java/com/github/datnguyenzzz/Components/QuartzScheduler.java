@@ -3,6 +3,7 @@ package com.github.datnguyenzzz.Components;
 import javax.annotation.PostConstruct;
 
 import org.quartz.JobDetail;
+import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -40,7 +41,15 @@ public class QuartzScheduler {
         this.scheduler.scheduleJob(jobDetail, trigger);
     }
 
+    public void scheduleJob(Trigger trigger) throws SchedulerException {
+        this.scheduler.scheduleJob(trigger);
+    }
+
     public void addJob(JobDetail jobDetail, boolean isReplace) throws SchedulerException {
         this.scheduler.addJob(jobDetail, isReplace);
+    }
+
+    public JobDetail getJobDetail(JobKey jobKey) throws SchedulerException {
+        return this.scheduler.getJobDetail(jobKey);
     }
 }

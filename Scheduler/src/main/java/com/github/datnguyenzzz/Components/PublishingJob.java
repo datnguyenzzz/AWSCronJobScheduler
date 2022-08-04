@@ -35,7 +35,8 @@ public class PublishingJob implements Job {
         String usedService = jobDetail.getDescription();
 
         String jobName = jobDetail.getKey().toString();
-
+        
+        // TODO: Trigger AWS publisher
         AWSPublisher publisher = this.awsPublisherFactory.getObject(usedService);
         publisher.publish(jobName);
     }

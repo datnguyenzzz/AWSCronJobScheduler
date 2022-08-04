@@ -1,16 +1,12 @@
 package com.github.datnguyenzzz.Actions;
 
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
+import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.slf4j.Logger;
@@ -51,72 +47,50 @@ public class SchedulerExecution {
         provider = ctx.getBean("cronJobProviderFactory", CronJobProvider.class);
     }
 
-    private void bfs(JobListDefinition jobList) throws SchedulerException {
-
+    /**
+     * 
+     * @param jobList
+     * 
+     * @implNote Add all job into scheduler without trigger implementation
+     */
+    private void prepareJob(JobListDefinition jobList) throws SchedulerException {
         Map<String, AWSJob> jobHashMap = jobList.getJobHashMap();
-        Map<String, List<String>> jobExecutionOrder = jobList.getJobExecutionOrder();
-
-        Deque<String> dq = new LinkedList<>();
-
-        Set<String> visited = new HashSet<>();
 
         for (String jobName: jobHashMap.keySet()) {
             // init store data map
-            visited.add(jobName);
+            AWSJob awsJob = jobHashMap.get(jobName);
+            JobDetail awsJobDetail = jobGenerator.genJobDetail(awsJob);
+            this.scheduler.addJob(awsJobDetail, false);
         }
+    }
 
+    /**
+     * 
+     * @param jobList
+     * @implNote add job trigger after its parent was executed
+     */
+    private void addAfterJobExecutedListener(JobListDefinition jobList) {}
+
+    /**
+     * 
+     * @param jobList
+     * @implNote Schedule all job stored in scheduler, a job without trigger will be trigger after some other job was executed
+     */
+    private void scheduleJob(JobListDefinition jobList) throws SchedulerException {
+        Map<String, AWSJob> jobHashMap = jobList.getJobHashMap();
         for (String jobName: jobHashMap.keySet()) {
-            if (!jobExecutionOrder.containsKey(jobName)) continue;
-            for (String jobNext : jobExecutionOrder.get(jobName)) 
-                visited.remove(jobNext);
-        }
-
-        //remain in visited is root
-        for (String root: visited) dq.add(root);
-
-        while (dq.size() > 0) {
-            String jobNow = dq.pollFirst();
-
-            //loggin
-            logger.info("Triggered job: \n");
-            logger.info(jobHashMap.get(jobNow).toString());
-
-            //Init Job Detail
-            AWSJob awsJobNow = jobHashMap.get(jobNow);
-            JobDetail awsJobDetail = jobGenerator.genJobDetail(awsJobNow);
-
-            //Init Job Listener
-            SequentialExecutionJobListener listener = 
-                new SequentialExecutionJobListener(jobGenerator.genJobKey(awsJobNow, PUBLISH_JOB_GROUP).toString());
-
-            if (jobExecutionOrder.containsKey(jobNow)) {
-
-                for (String jobNext : jobExecutionOrder.get(jobNow)) {
-
-                    if (visited.contains(jobNext)) continue;
-
-                    //TODO: Set up trigger JobNext after JobNow
-                    //TODO: By setting Job listener of jobNow after fired
-                    //jobNext must execute after jobNow
-                    AWSJob awsJobNext = jobHashMap.get(jobNext);
-                    listener.addToAfterFiredJob(jobGenerator.genJobKey(awsJobNext, PUBLISH_JOB_GROUP));
-
-                    visited.add(jobNext);
-                    dq.add(jobNext);
-                }
-            }
+            AWSJob awsJob = jobHashMap.get(jobName);
+            
+            // find corresponding job detail stored in scheduler
+            JobKey awsJobKey = this.jobGenerator.genJobKey(awsJob, PUBLISH_JOB_GROUP);
+            JobDetail awsJobDetail = this.scheduler.getJobDetail(awsJobKey);
 
             JobDataMap jobDataMap = awsJobDetail.getJobDataMap();
             Trigger trigger = (Trigger) jobDataMap.get(JOB_TRIGGER);
 
             //Add jobNow to scheduler
-            if (trigger != null) {
-                this.scheduler.scheduleJob(awsJobDetail, trigger);
-            } else {
-                //this mean job is executed after another job fire
-                //store job into scheduler for future run
-                this.scheduler.addJob(awsJobDetail, false);
-            }
+            if (trigger != null) 
+                this.scheduler.scheduleJob(trigger);
         }
     }
 
@@ -127,7 +101,9 @@ public class SchedulerExecution {
         jobList.updateRelation();
 
         // execute job list by BFS order
-        bfs(jobList);
+        prepareJob(jobList);
+        addAfterJobExecutedListener(jobList);
+        scheduleJob(jobList);
 
         //loggin all job
         //for(String group: this.scheduler.getJobGroupNames()) {

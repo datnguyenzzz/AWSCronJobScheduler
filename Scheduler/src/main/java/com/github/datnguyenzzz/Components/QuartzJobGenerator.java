@@ -28,7 +28,7 @@ public class QuartzJobGenerator {
     /**
      * 
      * @param awsJob
-     * @return JobDeTail
+     * @return JobDeTail of awsJob
      */
     public JobDetail genJobDetail(AWSJob awsJob) {
         //TODO: Pack Trigger into jobDetail
@@ -37,6 +37,7 @@ public class QuartzJobGenerator {
         if (awsJob.getCronTrigger() != null) {
             trigger = TriggerBuilder.newTrigger()
                         .withIdentity(awsJob.getName(), PUBLISH_TRIGGER_GROUP)
+                        .forJob(genJobKey(awsJob, PUBLISH_JOB_GROUP))
                         .withSchedule(
                             CronScheduleBuilder.cronSchedule(awsJob.getCronTrigger())
                         )      
@@ -74,7 +75,7 @@ public class QuartzJobGenerator {
      * 
      * @param job
      * @param group
-     * @return JobKey
+     * @return JobKey = jobName + group + usedService
      */
     public JobKey genJobKey(AWSJob job, String group) {
         StringBuilder sb = new StringBuilder();
