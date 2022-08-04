@@ -89,8 +89,9 @@ public class SchedulerExecution {
             for (String jobNextName : jobExecutionOrder.get(jobName)) {
                 AWSJob awsJobNext = jobHashMap.get(jobNextName);
                 JobKey awsJobNextKey = this.jobGenerator.genJobKey(awsJobNext, PUBLISH_JOB_GROUP);
+                JobDetail awsJobDetail = this.scheduler.getJobDetail(awsJobNextKey);
 
-                listener.addToJobExecuteNext(awsJobNextKey);
+                listener.addToJobExecuteNext(awsJobDetail);
             }
 
             //add listener to Job that match JobKey

@@ -6,7 +6,6 @@ import java.util.List;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.quartz.JobKey;
 import org.quartz.JobListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +15,7 @@ public class SequentialExecutionJobListener implements JobListener {
     private final static Logger logger = LoggerFactory.getLogger(SequentialExecutionJobListener.class);
 
     private String name;
-    private List<JobKey> jobExecuteNext;
+    private List<JobDetail> jobExecuteNext;
 
     public SequentialExecutionJobListener() {
         this.jobExecuteNext = new ArrayList<>();
@@ -32,8 +31,8 @@ public class SequentialExecutionJobListener implements JobListener {
         this.name = name;
     }
 
-    public void addToJobExecuteNext(JobKey jobKey) {
-        this.jobExecuteNext.add(jobKey);
+    public void addToJobExecuteNext(JobDetail jobDetail) {
+        this.jobExecuteNext.add(jobDetail);
     }
 
     public void setName(String name) {
@@ -61,8 +60,10 @@ public class SequentialExecutionJobListener implements JobListener {
         JobDetail awsJobDetail = context.getJobDetail();
         logger.info("After job" + awsJobDetail.getKey().toString() + "done !!!");
         logger.info("Try to execute:");
-        for (JobKey jobKey : this.jobExecuteNext) 
-            logger.info("\t" + jobKey.toString());
+        for (JobDetail jobDetail : this.jobExecuteNext) {
+            logger.info("\t" + jobDetail.getKey().toString());
+            //update trigger packed within job KV store
+        }
     }
     
 }
