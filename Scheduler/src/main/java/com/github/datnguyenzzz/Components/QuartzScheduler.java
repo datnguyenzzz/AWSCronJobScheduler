@@ -4,6 +4,7 @@ import javax.annotation.PostConstruct;
 
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
+import org.quartz.ListenerManager;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -51,5 +52,9 @@ public class QuartzScheduler {
 
     public JobDetail getJobDetail(JobKey jobKey) throws SchedulerException {
         return this.scheduler.getJobDetail(jobKey);
+    }
+
+    public ListenerManager getListenerManager() throws SchedulerException {
+        return this.scheduler.getListenerManager();
     }
 }

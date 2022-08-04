@@ -18,6 +18,10 @@ jobList:
   - name: "Upload to Kinesis # 4"
     usedService: "Kinesis"
     afterJobDone: "Upload to SQS #2"
+
+  - name: "Upload to SQS #5"
+    usedService: "SQS"
+    afterJobDone: "Upload to SQS #2"
   
   - name: "Upload to Kinesis #3"
     cronTrigger: "0/10 * * * * ?"

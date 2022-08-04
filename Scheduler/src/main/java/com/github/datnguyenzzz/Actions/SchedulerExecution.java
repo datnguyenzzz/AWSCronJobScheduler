@@ -1,5 +1,6 @@
 package com.github.datnguyenzzz.Actions;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -9,6 +10,7 @@ import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
+import org.quartz.impl.matchers.KeyMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +71,32 @@ public class SchedulerExecution {
      * @param jobList
      * @implNote add job trigger after its parent was executed
      */
-    private void addAfterJobExecutedListener(JobListDefinition jobList) {}
+    private void addAfterJobExecutedListener(JobListDefinition jobList) throws SchedulerException {
+        Map<String, AWSJob> jobHashMap = jobList.getJobHashMap();
+        Map<String, List<String>> jobExecutionOrder = jobList.getJobExecutionOrder();
+
+        for(String jobName: jobHashMap.keySet()) {
+            AWSJob awsJob = jobHashMap.get(jobName);
+            JobKey awsJobKey = this.jobGenerator.genJobKey(awsJob, PUBLISH_JOB_GROUP);
+
+            if (!jobExecutionOrder.containsKey(jobName)) continue;
+            if (jobExecutionOrder.get(jobName).size() == 0) continue;
+
+            SequentialExecutionJobListener listener = new SequentialExecutionJobListener();
+            listener.setName(awsJobKey.toString());
+
+            // prepare list of next job
+            for (String jobNextName : jobExecutionOrder.get(jobName)) {
+                AWSJob awsJobNext = jobHashMap.get(jobNextName);
+                JobKey awsJobNextKey = this.jobGenerator.genJobKey(awsJobNext, PUBLISH_JOB_GROUP);
+
+                listener.addToJobExecuteNext(awsJobNextKey);
+            }
+
+            //add listener to Job that match JobKey
+            this.scheduler.getListenerManager().addJobListener(listener, KeyMatcher.keyEquals(awsJobKey));
+        }
+    }
 
     /**
      * 
