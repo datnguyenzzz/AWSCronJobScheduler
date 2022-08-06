@@ -1,4 +1,4 @@
-package com.github.datnguyenzzz.Components;
+package com.github.datnguyenzzz.Jobs;
 
 import javax.annotation.PostConstruct;
 
