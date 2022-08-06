@@ -1,5 +1,6 @@
 package com.github.datnguyenzzz.Actions;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -122,11 +123,38 @@ public class SchedulerExecution {
         }
     }
 
+    /**
+     * 
+     * @param jobList
+     * @apiNote Immutable API
+     */
+    private void updateRelation(JobListDefinition jobList) {
+
+        Map<String, AWSJob> jobHashMap = jobList.getJobHashMap();
+        Map<String, List<String>> jobExecutionOrder = jobList.getJobExecutionOrder();
+
+        for (AWSJob job: jobList.getJobList()) {
+            String jobName = job.getName();
+            jobHashMap.put(jobName, job);
+        }
+
+        for (AWSJob job: jobList.getJobList()) {
+            if (job.getAfterJobDone()==null) continue;
+            String jobName = job.getName();
+            String jobBefore = job.getAfterJobDone();
+
+            if (!jobExecutionOrder.containsKey(jobBefore))
+                jobExecutionOrder.put(jobBefore, new ArrayList<>());
+
+            jobExecutionOrder.get(jobBefore).add(jobName);
+        }
+    }
+
     public void start() throws SchedulerException {
         logger.info("Start scheduler execution ...");
 
         JobListDefinition jobList = provider.getDefinition();
-        jobList.updateRelation();
+        updateRelation(jobList);
 
         // execute job list by BFS order
         prepareJob(jobList);
