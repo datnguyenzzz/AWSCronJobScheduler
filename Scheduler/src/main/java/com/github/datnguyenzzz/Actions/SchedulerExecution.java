@@ -82,7 +82,7 @@ public class SchedulerExecution {
             if (!jobExecutionOrder.containsKey(jobName)) continue;
             if (jobExecutionOrder.get(jobName).size() == 0) continue;
 
-            SequentialExecutionJobListener listener = new SequentialExecutionJobListener();
+            SequentialExecutionJobListener listener = new SequentialExecutionJobListener(this.scheduler);
             listener.setName(awsJobKey.toString());
 
             // prepare list of next job

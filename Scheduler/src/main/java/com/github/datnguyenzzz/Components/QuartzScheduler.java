@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import com.github.datnguyenzzz.Exceptions.SystemException;
 import com.github.datnguyenzzz.Factories.PublishingJobFactory;
 
-@Component
+@Component("quartzScheduler")
 public class QuartzScheduler {
     
     private Scheduler scheduler;

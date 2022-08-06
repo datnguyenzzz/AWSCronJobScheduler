@@ -7,28 +7,28 @@ import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.JobListener;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.datnguyenzzz.Components.QuartzScheduler;
+
 public class SequentialExecutionJobListener implements JobListener {
+
+    private final static String PUBLISH_TRIGGER_GROUP = "Trigger-publish-group";
 
     private final static Logger logger = LoggerFactory.getLogger(SequentialExecutionJobListener.class);
 
     private String name;
     private List<JobDetail> jobExecuteNext;
 
-    public SequentialExecutionJobListener() {
-        this.jobExecuteNext = new ArrayList<>();
-    }
+    private QuartzScheduler scheduler;
 
-    /**
-     * 
-     * @param name = JobKey
-     * @param jobExecuteNext = List<JobKey> must be execute next
-     */
-    public SequentialExecutionJobListener(String name) {
-        this();
-        this.name = name;
+    public SequentialExecutionJobListener(QuartzScheduler scheduler) {
+        this.jobExecuteNext = new ArrayList<>();
+        this.scheduler = scheduler;
     }
 
     public void addToJobExecuteNext(JobDetail jobDetail) {
@@ -57,12 +57,23 @@ public class SequentialExecutionJobListener implements JobListener {
     @Override
     public void jobWasExecuted(JobExecutionContext context, JobExecutionException arg1) {
         // TODO Auto-generated method stub
-        JobDetail awsJobDetail = context.getJobDetail();
-        logger.info("After job" + awsJobDetail.getKey().toString() + "done !!!");
-        logger.info("Try to execute:");
+        //JobDetail awsJobDetail = context.getJobDetail();
+        //logger.info("After job" + awsJobDetail.getKey().toString() + "done !!!");
+        //logger.info("Try to execute:");
         for (JobDetail jobDetail : this.jobExecuteNext) {
-            logger.info("\t" + jobDetail.getKey().toString());
-            //update trigger packed within job KV store
+            //logger.info("\t" + jobDetail.getKey().toString());
+            //1-shot trigger
+
+            Trigger trigger = TriggerBuilder.newTrigger()
+                                .withIdentity(jobDetail.getKey().toString(), PUBLISH_TRIGGER_GROUP)
+                                .forJob(jobDetail)
+                                .build();
+            try {
+                this.scheduler.scheduleJob(trigger);
+            }
+            catch (SchedulerException ex) {
+                logger.info("Can not execute " + jobDetail.getKey().toString());
+            }
         }
     }
     
