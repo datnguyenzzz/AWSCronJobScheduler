@@ -62,7 +62,7 @@ public class SchedulerExecution {
         for (String jobName: jobHashMap.keySet()) {
             // init store data map
             AWSJob awsJob = jobHashMap.get(jobName);
-            JobDetail awsJobDetail = jobGenerator.genJobDetail(awsJob);
+            JobDetail awsJobDetail = jobGenerator.genPublishingJobDetail(awsJob);
             this.scheduler.addJob(awsJobDetail, false);
         }
     }
