@@ -8,12 +8,10 @@ import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
-import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.springframework.stereotype.Component;
 
-import com.github.datnguyenzzz.Jobs.HealthCheckJob;
 import com.github.datnguyenzzz.Jobs.PublishingJob;
 import com.github.datnguyenzzz.dto.AWSJob;
 import com.github.datnguyenzzz.dto.Message;
@@ -86,36 +84,5 @@ public class QuartzJobGenerator {
         sb.append("-");
         sb.append(job.getUsedService().toUpperCase());
         return new JobKey(job.getName(), sb.toString());
-    }
-
-    /**
-     * 
-     * @param healthCheckFrequency
-     * @return job health check in every <frequency> sec
-     */
-    public JobDetail genHealthCheckJobDetail(int healthCheckFrequency) {
-
-        JobKey jobName = new JobKey("Health check");
-
-        Map<String, Object> kvMap = new HashMap<>();
-
-        Trigger trigger = TriggerBuilder.newTrigger()
-                            .withDescription("Period health checking")
-                            .forJob(jobName)
-                            .withSchedule(
-                                SimpleScheduleBuilder.repeatSecondlyForever(healthCheckFrequency)
-                            )
-                            .build();
-
-        kvMap.put(JOB_TRIGGER, trigger);
-
-        JobDetail healthCheckJobDetail = JobBuilder.newJob(HealthCheckJob.class)
-                                            .withDescription("Period health checking")
-                                            .withIdentity(jobName)
-                                            .usingJobData(new JobDataMap(kvMap))
-                                            .storeDurably(true)
-                                            .build();
-
-        return healthCheckJobDetail;
     }
 }

@@ -19,7 +19,7 @@ public class CronJobConfiguration {
     private String cronJobDefinitionFile;
 
     @Getter
-    private int healthCheckFrequency = 10;
+    private int healthCheckTimeWindow = 10;
 
     @Getter
     private int consecutiveErrorThreshold = -1;
@@ -65,7 +65,7 @@ public class CronJobConfiguration {
         String healthCheckMinute = System.getenv("HEALTH_CHECK_FREQUENCY");
 
         if (healthCheckMinute != null && !healthCheckMinute.equals("")) 
-            this.healthCheckFrequency = Integer.parseInt(healthCheckMinute);
+            this.healthCheckTimeWindow = Integer.parseInt(healthCheckMinute);
 
         String consecutiveError = System.getenv("CONSECUTIVE_ERROR_POSTPONE_THRESHOLD");
         if (consecutiveError != null && !healthCheckMinute.equals(""))
