@@ -2,7 +2,7 @@
 #supported tree architecture only
 jobList:
   - name: "Upload to SQS #1"
-    cronTrigger: "0/5 * * * * ?"
+    cronTrigger: "0/3 * * * * ?"
     usedService: "SQS"
     messages:
       - key: "key-1"
@@ -24,6 +24,6 @@ jobList:
     afterJobDone: "Upload to SQS #2"
   
   - name: "Upload to Kinesis #3"
-    cronTrigger: "0/10 * * * * ?"
+    cronTrigger: "0/5 * * * * ?"
     usedService: "Kinesis"
     lambdaActionFile: "xyz/ghi/dfc.java"
