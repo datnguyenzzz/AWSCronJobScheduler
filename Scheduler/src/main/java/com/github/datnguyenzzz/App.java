@@ -5,6 +5,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import com.github.datnguyenzzz.Actions.HealthyStatusAggregationReport;
 import com.github.datnguyenzzz.Actions.SchedulerExecution;
 
 /**
@@ -18,6 +19,9 @@ public class App implements CommandLineRunner {
     @Autowired
     private SchedulerExecution schedulerExecution;
 
+    @Autowired
+    private HealthyStatusAggregationReport healthyReport;
+
     public static void main( String[] args ) {
         SpringApplication.run(App.class, args);
     }
@@ -25,6 +29,7 @@ public class App implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         //health check service is more likely to start first 
+        this.healthyReport.start();
         this.schedulerExecution.start();
     }
 }

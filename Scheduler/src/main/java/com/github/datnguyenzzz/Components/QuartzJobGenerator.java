@@ -74,6 +74,16 @@ public class QuartzJobGenerator {
 
     /**
      * 
+     * @param timeWindow
+     * @return Job that will trigger aggregate time series DB
+     */
+    public JobDetail genStatusAggregateJob(int timeWindow) {
+        //TODO: generate job with trigger inside DataMap
+        return null;
+    }
+
+    /**
+     * 
      * @param job
      * @param group
      * @return JobKey = jobName + group + usedService
