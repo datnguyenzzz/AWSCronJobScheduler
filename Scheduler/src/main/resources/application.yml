@@ -1,0 +1,5 @@
+verbal:
+  jobTrigger: jobTrigger
+  lambdaActionFile: lambdaActionFile
+  jobPublishGroup: jobPublishGroup
+  triggerPublishGroup: triggerPublishGroup

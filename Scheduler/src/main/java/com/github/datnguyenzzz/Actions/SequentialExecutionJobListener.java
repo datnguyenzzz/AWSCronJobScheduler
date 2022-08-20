@@ -12,12 +12,14 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.github.datnguyenzzz.Components.QuartzScheduler;
 
 public class SequentialExecutionJobListener implements JobListener {
 
-    private final static String PUBLISH_TRIGGER_GROUP = "Trigger-publish-group";
+    @Value("${verbal.triggerPublishGroup}")
+    private String PUBLISH_TRIGGER_GROUP;
 
     private final static Logger logger = LoggerFactory.getLogger(SequentialExecutionJobListener.class);
 

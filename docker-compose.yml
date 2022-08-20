@@ -13,7 +13,7 @@ services:
     environment:
       CRON_JOB_PROVIDER: "local"
       CRON_JOB_LOCATION: "/AWSCronJob/definition.yaml"
-      HEALTH_CHECK_FREQUENCY: 10
+      HEALTH_CHECK_FREQUENCY: 5
       CONSECUTIVE_ERROR_POSTPONE_THRESHOLD: 5
       PERCENTAGE_ERROR_POSTPONE_THRESHOLD: 10
       AWS_REGION: "eu-north-1"

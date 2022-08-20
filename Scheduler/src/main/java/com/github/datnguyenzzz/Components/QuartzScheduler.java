@@ -1,5 +1,8 @@
 package com.github.datnguyenzzz.Components;
 
+import java.util.List;
+import java.util.Set;
+
 import javax.annotation.PostConstruct;
 
 import org.quartz.JobDetail;
@@ -9,6 +12,7 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
+import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -56,5 +60,13 @@ public class QuartzScheduler {
 
     public ListenerManager getListenerManager() throws SchedulerException {
         return this.scheduler.getListenerManager();
+    }
+
+    public List<String> getJobGroupNames() throws SchedulerException {
+        return this.scheduler.getJobGroupNames();
+    }
+
+    public Set<JobKey> getJobKeys(GroupMatcher<JobKey> matcher) throws SchedulerException {
+        return this.scheduler.getJobKeys(matcher);
     }
 }

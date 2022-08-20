@@ -7,6 +7,7 @@ import org.quartz.JobDetail;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.github.datnguyenzzz.Components.CronJobConfiguration;
@@ -16,7 +17,8 @@ import com.github.datnguyenzzz.Components.QuartzScheduler;
 @Component
 public class HealthyStatusAggregationReport {
 
-    private final static String JOB_TRIGGER = "jobTrigger";
+    @Value("${verbal.jobTrigger}")
+    private String JOB_TRIGGER;
     
     @Autowired
     private CronJobConfiguration config;

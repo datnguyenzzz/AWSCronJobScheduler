@@ -11,10 +11,12 @@ import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
+import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.impl.matchers.KeyMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -27,8 +29,11 @@ import com.github.datnguyenzzz.dto.JobListDefinition;
 @Component
 public class SchedulerExecution {
 
-    private final static String JOB_TRIGGER = "jobTrigger";
-    private final static String PUBLISH_JOB_GROUP = "Job-publish-group";
+    @Value("${verbal.jobTrigger}")
+    private String JOB_TRIGGER;
+
+    @Value("${verbal.jobPublishGroup}")
+    private String PUBLISH_JOB_GROUP;
 
     @Autowired
     private ApplicationContext ctx;
@@ -159,13 +164,15 @@ public class SchedulerExecution {
         // execute job list by BFS order
         prepareJob(jobList);
         addAfterJobExecutedListener(jobList);
-        scheduleJob(jobList);
 
         //loggin all job
-        //for(String group: this.scheduler.getJobGroupNames()) {
-        //    for(JobKey jobKey : this.scheduler.getJobKeys(GroupMatcher.groupEquals(group))) {
-        //        logger.info("Found job identified by: " + jobKey.toString());
-        //    }
-        //}
+        for(String group: this.scheduler.getJobGroupNames()) {
+            for(JobKey jobKey : this.scheduler.getJobKeys(GroupMatcher.groupEquals(group))) {
+                logger.info("Found job identified by: " + jobKey.toString());
+            }
+        }
+
+        scheduleJob(jobList);
+
     }
 }

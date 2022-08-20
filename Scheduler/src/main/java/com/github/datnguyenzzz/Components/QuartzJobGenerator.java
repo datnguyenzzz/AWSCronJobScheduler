@@ -11,6 +11,7 @@ import org.quartz.JobKey;
 import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.github.datnguyenzzz.Jobs.HealthCheck;
@@ -21,10 +22,17 @@ import com.github.datnguyenzzz.dto.Message;
 @Component
 public class QuartzJobGenerator {
 
-    private final static String JOB_TRIGGER = "jobTrigger";
-    private final static String ACTION_FILE = "lambdaActionFile";
-    private final static String PUBLISH_JOB_GROUP = "Job-publish-group";
-    private final static String PUBLISH_TRIGGER_GROUP = "Trigger-publish-group";
+    @Value("${verbal.jobTrigger}")
+    private String JOB_TRIGGER;
+
+    @Value("${verbal.lambdaActionFile}")
+    private String ACTION_FILE;
+
+    @Value("${verbal.jobPublishGroup}")
+    private String PUBLISH_JOB_GROUP;
+
+    @Value("${verbal.triggerPublishGroup}")
+    private String PUBLISH_TRIGGER_GROUP;
 
     public QuartzJobGenerator() {}
     
