@@ -2,6 +2,7 @@ package com.github.datnguyenzzz.Actions;
 
 import javax.annotation.PostConstruct;
 
+import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -14,6 +15,8 @@ import com.github.datnguyenzzz.Components.QuartzScheduler;
 
 @Component
 public class HealthyStatusAggregationReport {
+
+    private final static String JOB_TRIGGER = "jobTrigger";
     
     @Autowired
     private CronJobConfiguration config;
@@ -36,7 +39,10 @@ public class HealthyStatusAggregationReport {
      */
     public void start() throws SchedulerException {
         JobDetail aggregateJobDetail = this.jobGenerator.genStatusAggregateJob(healthCheckTimeWindow);
-        Trigger aggregateJobTrigger = null;
+
+        JobDataMap dataMap = aggregateJobDetail.getJobDataMap();
+
+        Trigger aggregateJobTrigger = (Trigger) dataMap.get(JOB_TRIGGER);
         this.scheduler.scheduleJob(aggregateJobDetail, aggregateJobTrigger);
     }
 

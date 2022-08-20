@@ -8,10 +8,12 @@ import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
+import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.springframework.stereotype.Component;
 
+import com.github.datnguyenzzz.Jobs.HealthCheck;
 import com.github.datnguyenzzz.Jobs.PublishingJob;
 import com.github.datnguyenzzz.dto.AWSJob;
 import com.github.datnguyenzzz.dto.Message;
@@ -79,7 +81,33 @@ public class QuartzJobGenerator {
      */
     public JobDetail genStatusAggregateJob(int timeWindow) {
         //TODO: generate job with trigger inside DataMap
-        return null;
+
+        String name = "Healthy Status Check";
+        String group = "Health check";
+
+        JobKey jobKey = genJobKey(name, group);
+
+        //job data map
+        Map<String, Object> hMap = new HashMap<>();
+        
+        //gen trigger
+        Trigger trigger = TriggerBuilder.newTrigger()
+                            .withIdentity("Health check periodically")
+                            .startNow()
+                            .withSchedule(
+                                SimpleScheduleBuilder.repeatSecondlyForever(timeWindow)
+                            )
+                            .build();
+
+        hMap.put(JOB_TRIGGER, trigger);
+
+        //gen job
+        JobDetail jobDetail = JobBuilder.newJob(HealthCheck.class)
+                                .withIdentity(jobKey)
+                                .storeDurably(true)
+                                .usingJobData(new JobDataMap(hMap))
+                                .build();
+        return jobDetail;
     }
 
     /**
@@ -94,5 +122,15 @@ public class QuartzJobGenerator {
         sb.append("-");
         sb.append(job.getUsedService().toUpperCase());
         return new JobKey(job.getName(), sb.toString());
+    }
+
+    /**
+     * 
+     * @param name
+     * @param group
+     * @return JobKey
+     */
+    public JobKey genJobKey(String name, String group) {
+        return new JobKey(name, group);
     }
 }
