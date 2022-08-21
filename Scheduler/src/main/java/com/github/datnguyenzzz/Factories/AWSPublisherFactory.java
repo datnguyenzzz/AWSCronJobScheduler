@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import com.github.datnguyenzzz.Interfaces.AWSPublisher;
 
 /** 
- * Currently have bean:
+ * @implSpec Currently have bean:
  * - awsSQSPublisher
  * - awsKinesisPubliser
  * - awsS3Publisher
@@ -25,6 +25,11 @@ public class AWSPublisherFactory{
     @Autowired
     private ApplicationContext ctx;
 
+    /**
+     * 
+     * @param usedService
+     * @return Bean correctsponding to used AWS service
+     */
     public AWSPublisher getObject(String usedService) {
         AWSPublisher targetBean = ctx.getBean(getTargetBeanName(usedService), AWSPublisher.class);
         return targetBean;

@@ -2,20 +2,29 @@ package com.github.datnguyenzzz.Jobs;
 
 import javax.annotation.PostConstruct;
 
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.quartz.PersistJobDataAfterExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.github.datnguyenzzz.Factories.AWSPublisherFactory;
 import com.github.datnguyenzzz.Interfaces.AWSPublisher;
 
+/**
+ * @apiNote Multiple instances of the job will not be allowed to run concurrently 
+ * (consider a case where a job has code in its execute() method that takes 34 seconds to run, 
+ * but it is scheduled with a trigger that repeats every 30 seconds)
+ * 
+ * @apiNote JobDataMap contents re-persisted in the scheduler's JobStore after each execution.
+ */
 @Component
-@Scope("prototype")
+@PersistJobDataAfterExecution
+@DisallowConcurrentExecution
 public class PublishingJob implements Job {
 
     @Autowired

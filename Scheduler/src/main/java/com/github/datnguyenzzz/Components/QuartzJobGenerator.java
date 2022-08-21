@@ -34,7 +34,31 @@ public class QuartzJobGenerator {
     @Value("${verbal.triggerPublishGroup}")
     private String PUBLISH_TRIGGER_GROUP;
 
+    @Value("${verbal.jobFired}")
+    private String JOB_FIRED;
+
+    @Value("${verbal.jobMisFired}")
+    private String JOB_MISFIRED;
+
+    @Value("${verbal.jobStatus}")
+    private String JOB_STATUS;
+
     public QuartzJobGenerator() {}
+
+    /**
+     * 
+     * @apiNote Default data will be persisted within a job itself
+     * 
+     * @category job executioned number (fired) , current status 
+     * , number of job is waiting(after misfired) 
+     */
+    public Map<String, Object> genDefaultDataMapContent() {
+        Map<String, Object> hMap = new HashMap<>();
+        hMap.put(JOB_FIRED,0);
+        hMap.put(JOB_MISFIRED, 0);
+        hMap.put(JOB_STATUS, 0);
+        return hMap;
+    }
     
     /**
      * 
@@ -56,7 +80,7 @@ public class QuartzJobGenerator {
         }
         
         //Get job data KV store by name from global store
-        Map<String, Object> hMap = new HashMap<>();
+        Map<String, Object> hMap = genDefaultDataMapContent();
         hMap.put(JOB_TRIGGER, trigger);
 
         if (awsJob.getLambdaActionFile() != null) 

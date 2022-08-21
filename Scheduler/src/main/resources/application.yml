@@ -3,3 +3,6 @@ verbal:
   lambdaActionFile: lambdaActionFile
   jobPublishGroup: jobPublishGroup
   triggerPublishGroup: triggerPublishGroup
+  jobFired: jobFired
+  jobMisFired: jobMisFired
+  jobStatus: jobStatus
