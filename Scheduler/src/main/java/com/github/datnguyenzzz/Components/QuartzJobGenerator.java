@@ -43,6 +43,9 @@ public class QuartzJobGenerator {
     @Value("${verbal.jobStatus}")
     private String JOB_STATUS;
 
+    @Value("${verbal.isFinished}")
+    private String IS_FINISHED;
+
     public QuartzJobGenerator() {}
 
     /**
@@ -56,7 +59,7 @@ public class QuartzJobGenerator {
         Map<String, Object> hMap = new HashMap<>();
         hMap.put(JOB_FIRED,0);
         hMap.put(JOB_MISFIRED, 0);
-        hMap.put(JOB_STATUS, 0);
+        hMap.put(JOB_STATUS, Integer.parseInt(IS_FINISHED));
         return hMap;
     }
     

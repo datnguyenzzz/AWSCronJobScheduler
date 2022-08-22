@@ -44,6 +44,7 @@ public class SchedulerExecution {
     @Autowired
     private QuartzJobGenerator jobGenerator;
 
+
     private CronJobProvider provider;
     
     private final Logger logger = LoggerFactory.getLogger(SchedulerExecution.class);
@@ -88,8 +89,10 @@ public class SchedulerExecution {
             if (!jobExecutionOrder.containsKey(jobName)) continue;
             if (jobExecutionOrder.get(jobName).size() == 0) continue;
 
-            SequentialExecutionJobListener listener = new SequentialExecutionJobListener(this.scheduler);
-            listener.setName(awsJobKey.toString());
+            SequentialExecutionJobListener executionJobListener = ctx.getBean(SequentialExecutionJobListener.class);
+
+            executionJobListener.setScheduler(this.scheduler);
+            executionJobListener.setName(awsJobKey.toString());
 
             // prepare list of next job
             for (String jobNextName : jobExecutionOrder.get(jobName)) {
@@ -97,11 +100,11 @@ public class SchedulerExecution {
                 JobKey awsJobNextKey = this.jobGenerator.genJobKey(awsJobNext, PUBLISH_JOB_GROUP);
                 JobDetail awsJobDetail = this.scheduler.getJobDetail(awsJobNextKey);
 
-                listener.addToJobExecuteNext(awsJobDetail);
+                executionJobListener.addToJobExecuteNext(awsJobDetail);
             }
 
             //add listener to Job that match JobKey
-            this.scheduler.getListenerManager().addJobListener(listener, KeyMatcher.keyEquals(awsJobKey));
+            this.scheduler.getListenerManager().addJobListener(executionJobListener, KeyMatcher.keyEquals(awsJobKey));
         }
     }
 

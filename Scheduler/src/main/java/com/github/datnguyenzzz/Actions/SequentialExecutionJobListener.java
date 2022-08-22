@@ -13,9 +13,16 @@ import org.quartz.TriggerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import com.github.datnguyenzzz.Components.QuartzScheduler;
 
+/**
+ * @apiNote Trigger job sequentially
+ */
+@Component
+@Scope("prototype")
 public class SequentialExecutionJobListener implements JobListener {
 
     @Value("${verbal.triggerPublishGroup}")
@@ -28,8 +35,11 @@ public class SequentialExecutionJobListener implements JobListener {
 
     private QuartzScheduler scheduler;
 
-    public SequentialExecutionJobListener(QuartzScheduler scheduler) {
+    public SequentialExecutionJobListener() {
         this.jobExecuteNext = new ArrayList<>();
+    }
+
+    public void setScheduler(QuartzScheduler scheduler) {
         this.scheduler = scheduler;
     }
 
