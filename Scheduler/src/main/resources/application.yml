@@ -6,5 +6,7 @@ verbal:
   jobFired: jobFired
   jobMisFired: jobMisFired
   jobStatus: jobStatus
-  isRunning: 0
-  isFinished: 1
+  isRunning: IS RUNNING !!!
+  isFinished: IS FINISHED !!!
+  jobCompleted: jobCompleted
+  healthCheckGroup: healthChecking

@@ -2,7 +2,7 @@
 #supported tree architecture only
 jobList:
   - name: "Upload to SQS #1"
-    cronTrigger: "0/3 * * * * ?"
+    cronTrigger: "0/4 * * * * ?"
     usedService: "SQS"
     messages:
       - key: "key-1"

@@ -11,6 +11,7 @@ import org.quartz.JobKey;
 import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
+import org.quartz.TriggerKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -40,11 +41,17 @@ public class QuartzJobGenerator {
     @Value("${verbal.jobMisFired}")
     private String JOB_MISFIRED;
 
+    @Value("${verbal.jobCompleted}")
+    private String JOB_COMPLETED;
+
     @Value("${verbal.jobStatus}")
     private String JOB_STATUS;
 
     @Value("${verbal.isFinished}")
     private String IS_FINISHED;
+
+    @Value("${verbal.healthCheckGroup}")
+    private String HEALTH_CHECK_GROUP;
 
     public QuartzJobGenerator() {}
 
@@ -59,7 +66,8 @@ public class QuartzJobGenerator {
         Map<String, Object> hMap = new HashMap<>();
         hMap.put(JOB_FIRED,0);
         hMap.put(JOB_MISFIRED, 0);
-        hMap.put(JOB_STATUS, Integer.parseInt(IS_FINISHED));
+        hMap.put(JOB_COMPLETED, 0);
+        hMap.put(JOB_STATUS, IS_FINISHED);
         return hMap;
     }
     
@@ -74,8 +82,8 @@ public class QuartzJobGenerator {
         
         if (awsJob.getCronTrigger() != null) {
             trigger = TriggerBuilder.newTrigger()
-                        .withIdentity(awsJob.getName(), PUBLISH_TRIGGER_GROUP)
-                        .forJob(genJobKey(awsJob, PUBLISH_JOB_GROUP))
+                        .withIdentity(genTriggerKey(awsJob))
+                        .forJob(genJobKey(awsJob))
                         .withSchedule(
                             CronScheduleBuilder.cronSchedule(awsJob.getCronTrigger())
                         )      
@@ -101,7 +109,7 @@ public class QuartzJobGenerator {
         //in order to get corresponding Bean ....AWSPublisher
         JobDetail awsJobDetail = JobBuilder.newJob(PublishingJob.class)
                                         .withDescription(awsJob.getUsedService())
-                                        .withIdentity(genJobKey(awsJob, PUBLISH_JOB_GROUP))
+                                        .withIdentity(genJobKey(awsJob))
                                         .storeDurably(isNeededDurable)
                                         .usingJobData(new JobDataMap(hMap))
                                         .build();
@@ -118,16 +126,16 @@ public class QuartzJobGenerator {
         //TODO: generate job with trigger inside DataMap
 
         String name = "Healthy Status Check";
-        String group = "Health check";
 
-        JobKey jobKey = genJobKey(name, group);
+        JobKey jobKey = genJobKey(name, HEALTH_CHECK_GROUP);
+        TriggerKey triggerKey = genTriggerKey(name, HEALTH_CHECK_GROUP);
 
         //job data map
         Map<String, Object> hMap = new HashMap<>();
         
         //gen trigger
         Trigger trigger = TriggerBuilder.newTrigger()
-                            .withIdentity("Health check periodically")
+                            .withIdentity(triggerKey)
                             .startNow()
                             .withSchedule(
                                 SimpleScheduleBuilder.repeatSecondlyForever(timeWindow)
@@ -167,5 +175,27 @@ public class QuartzJobGenerator {
      */
     public JobKey genJobKey(String name, String group) {
         return new JobKey(name, group);
+    }
+
+    public JobKey genJobKey(AWSJob job) {
+        return genJobKey(job, PUBLISH_JOB_GROUP);
+    }
+
+    /**
+     * 
+     * @param name
+     * @param group
+     * @return trigger key
+     */
+    public TriggerKey genTriggerKey(AWSJob job, String group) {
+        return new TriggerKey(job.getName(), group);
+    }
+
+    public TriggerKey genTriggerKey(String name, String group) {
+        return new TriggerKey(name, group);
+    }
+
+    public TriggerKey genTriggerKey(AWSJob job) {
+        return genTriggerKey(job, PUBLISH_TRIGGER_GROUP);
     }
 }

@@ -13,6 +13,7 @@ import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.impl.matchers.KeyMatcher;
+import org.quartz.impl.matchers.NotMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +30,11 @@ import com.github.datnguyenzzz.dto.JobListDefinition;
 @Component
 public class SchedulerExecution {
 
+    @Value("${verbal.healthCheckGroup}")
+    private String HEALTH_CHECK_GROUP;
+
     @Value("${verbal.jobTrigger}")
     private String JOB_TRIGGER;
-
-    @Value("${verbal.jobPublishGroup}")
-    private String PUBLISH_JOB_GROUP;
 
     @Autowired
     private ApplicationContext ctx;
@@ -44,6 +45,11 @@ public class SchedulerExecution {
     @Autowired
     private QuartzJobGenerator jobGenerator;
 
+    @Autowired
+    private JobHealthyStatusUpdateTriggerListener healthyTriggerListener;
+
+    @Autowired
+    private JobHealthyStatusUpdateJobListener healthyJobListener;
 
     private CronJobProvider provider;
     
@@ -54,6 +60,8 @@ public class SchedulerExecution {
     @PostConstruct
     private void init() {
         provider = ctx.getBean("cronJobProviderFactory", CronJobProvider.class);
+        healthyTriggerListener.setName("Healthy update with trigger");
+        healthyJobListener.setName("Healthy update with job");
     }
 
     /**
@@ -84,7 +92,7 @@ public class SchedulerExecution {
 
         for(String jobName: jobHashMap.keySet()) {
             AWSJob awsJob = jobHashMap.get(jobName);
-            JobKey awsJobKey = this.jobGenerator.genJobKey(awsJob, PUBLISH_JOB_GROUP);
+            JobKey awsJobKey = this.jobGenerator.genJobKey(awsJob);
 
             if (!jobExecutionOrder.containsKey(jobName)) continue;
             if (jobExecutionOrder.get(jobName).size() == 0) continue;
@@ -97,7 +105,7 @@ public class SchedulerExecution {
             // prepare list of next job
             for (String jobNextName : jobExecutionOrder.get(jobName)) {
                 AWSJob awsJobNext = jobHashMap.get(jobNextName);
-                JobKey awsJobNextKey = this.jobGenerator.genJobKey(awsJobNext, PUBLISH_JOB_GROUP);
+                JobKey awsJobNextKey = this.jobGenerator.genJobKey(awsJobNext);
                 JobDetail awsJobDetail = this.scheduler.getJobDetail(awsJobNextKey);
 
                 executionJobListener.addToJobExecuteNext(awsJobDetail);
@@ -112,6 +120,7 @@ public class SchedulerExecution {
      * 
      * @param jobList
      * @implNote Schedule all job stored in scheduler, a job without trigger will be trigger after some other job was executed
+     * @implNote Update healthy statuses within trigger listener
      */
     private void scheduleJob(JobListDefinition jobList) throws SchedulerException {
         Map<String, AWSJob> jobHashMap = jobList.getJobHashMap();
@@ -119,7 +128,7 @@ public class SchedulerExecution {
             AWSJob awsJob = jobHashMap.get(jobName);
             
             // find corresponding job detail stored in scheduler
-            JobKey awsJobKey = this.jobGenerator.genJobKey(awsJob, PUBLISH_JOB_GROUP);
+            JobKey awsJobKey = this.jobGenerator.genJobKey(awsJob);
             JobDetail awsJobDetail = this.scheduler.getJobDetail(awsJobKey);
 
             JobDataMap jobDataMap = awsJobDetail.getJobDataMap();
@@ -128,7 +137,17 @@ public class SchedulerExecution {
             //Add jobNow to scheduler
             if (trigger != null) 
                 this.scheduler.scheduleJob(trigger);
+
         }
+    }
+
+    /**
+     * @implNote Attach listener to trigger and job, except Health Cheack job, to update healthy status
+     * @throws SchedulerException
+     */
+    private void updateHealthyStatus() throws SchedulerException {
+        this.scheduler.getListenerManager().addTriggerListener(healthyTriggerListener, NotMatcher.not(GroupMatcher.triggerGroupEquals(HEALTH_CHECK_GROUP)));
+        this.scheduler.getListenerManager().addJobListener(healthyJobListener, NotMatcher.not(GroupMatcher.jobGroupEquals(HEALTH_CHECK_GROUP)));
     }
 
     /**
@@ -167,6 +186,8 @@ public class SchedulerExecution {
         // execute job list by BFS order
         prepareJob(jobList);
         addAfterJobExecutedListener(jobList);
+
+        updateHealthyStatus();
 
         //loggin all job
         for(String group: this.scheduler.getJobGroupNames()) {
