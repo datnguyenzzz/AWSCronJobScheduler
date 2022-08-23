@@ -132,7 +132,7 @@ public class QuartzJobGenerator {
 
         //job data map
         Map<String, Object> hMap = new HashMap<>();
-        
+
         //gen trigger
         Trigger trigger = TriggerBuilder.newTrigger()
                             .withIdentity(triggerKey)

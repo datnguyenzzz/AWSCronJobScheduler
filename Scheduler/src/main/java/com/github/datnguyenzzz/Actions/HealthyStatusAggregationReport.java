@@ -17,6 +17,9 @@ import com.github.datnguyenzzz.Components.QuartzScheduler;
 @Component
 public class HealthyStatusAggregationReport {
 
+    @Value("${verbal.schedulerKey}")
+    private String SCHEDULER_KEY;
+
     @Value("${verbal.jobTrigger}")
     private String JOB_TRIGGER;
     
@@ -43,6 +46,8 @@ public class HealthyStatusAggregationReport {
         JobDetail aggregateJobDetail = this.jobGenerator.genStatusAggregateJob(healthCheckTimeWindow);
 
         JobDataMap dataMap = aggregateJobDetail.getJobDataMap();
+
+        dataMap.put(SCHEDULER_KEY, this.scheduler);
 
         Trigger aggregateJobTrigger = (Trigger) dataMap.get(JOB_TRIGGER);
         this.scheduler.scheduleJob(aggregateJobDetail, aggregateJobTrigger);

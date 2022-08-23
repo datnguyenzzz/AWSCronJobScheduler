@@ -10,3 +10,4 @@ verbal:
   isFinished: IS FINISHED !!!
   jobCompleted: jobCompleted
   healthCheckGroup: healthChecking
+  schedulerKey: schedulerKey
