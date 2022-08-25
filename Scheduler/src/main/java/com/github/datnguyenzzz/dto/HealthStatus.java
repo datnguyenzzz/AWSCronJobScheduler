@@ -1,11 +1,14 @@
 package com.github.datnguyenzzz.dto;
 
+import java.time.LocalDateTime;
+
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-@RequiredArgsConstructor
 public class HealthStatus {
+
+    @Getter @Setter
+    private LocalDateTime time;
 
     @Getter @Setter
     private String jobName;
@@ -22,6 +25,16 @@ public class HealthStatus {
     @Getter @Setter
     private String jobStatus;
 
+    public HealthStatus(LocalDateTime time, String jobName, int jobFired, int jobMisFired, int jobCompleted, String jobStatus) {
+        this.time = time;
+        this.jobName = jobName;
+        this.jobFired = jobFired;
+        this.jobMisfired = jobMisFired;
+        this.jobCompleted = jobCompleted;
+        this.jobStatus = jobStatus;
+    }
+
+    /*
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("\t Name : " + this.jobName);
@@ -32,5 +45,5 @@ public class HealthStatus {
         sb.append("\t Status: " + this.jobCompleted);
 
         return sb.toString();
-    }
+    }*/
 }

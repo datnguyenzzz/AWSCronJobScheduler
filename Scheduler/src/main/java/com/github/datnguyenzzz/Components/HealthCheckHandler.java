@@ -18,13 +18,10 @@ import com.github.datnguyenzzz.dto.HealthStatus;
 @Scope("Singleton")
 public class HealthCheckHandler {
 
-    private LocalDateTime time;
-    
     private Map<Integer, HealthStatus> allHealthStatus;
 
     @PostConstruct
     public void init() {
-        this.time = LocalDateTime.now();
         this.allHealthStatus = new HashMap<>();
     }
 
@@ -32,13 +29,23 @@ public class HealthCheckHandler {
         this.allHealthStatus.put(jobId, healthStatus);
     }
 
-    public void setTime(LocalDateTime time) {
-        this.time = time;
-    }
-
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        return sb.toString();
+    /**
+     * 
+     * @param jobId
+     * @param time
+     * @param jobName
+     * @param jobFired
+     * @param jobMisFired
+     * @param jobCompleted
+     * @param jobStatus
+     * 
+     * @apiNote Add health status dto to bean
+     */
+    public void addToHashMap(int jobId, LocalDateTime time, String jobName, int jobFired, 
+                             int jobMisFired, int jobCompleted, String jobStatus) 
+    {   
+        HealthStatus healthStatus = new HealthStatus(time, jobName, jobFired, jobMisFired, jobCompleted, jobStatus);
+        this.allHealthStatus.put(jobId, healthStatus);
     }
 
 }
