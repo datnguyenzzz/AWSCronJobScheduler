@@ -15,7 +15,7 @@ import com.github.datnguyenzzz.dto.HealthStatus;
  * Handle everytime health check job finish
  */
 @Component
-@Scope("Singleton")
+@Scope("singleton")
 public class HealthCheckHandler {
 
     private Map<Integer, HealthStatus> allHealthStatus;
@@ -46,6 +46,10 @@ public class HealthCheckHandler {
     {   
         HealthStatus healthStatus = new HealthStatus(time, jobName, jobFired, jobMisFired, jobCompleted, jobStatus);
         this.allHealthStatus.put(jobId, healthStatus);
+    }
+
+    public Map<Integer, HealthStatus> getAllHealthStatus() {
+        return this.allHealthStatus;
     }
 
 }
