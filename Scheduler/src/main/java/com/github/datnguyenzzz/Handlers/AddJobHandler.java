@@ -2,11 +2,14 @@ package com.github.datnguyenzzz.Handlers;
 
 import java.util.List;
 
+import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
+import org.quartz.Trigger;
 import org.quartz.impl.matchers.KeyMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -28,6 +31,9 @@ public class AddJobHandler {
 
     @Autowired
     private ApplicationContext ctx;
+
+    @Value("${verbal.jobTrigger}")
+    private String JOB_TRIGGER;
     
     /**
      * 
@@ -64,5 +70,23 @@ public class AddJobHandler {
 
         //add listener to Job that match JobKey
         this.scheduler.getListenerManager().addJobListener(executionJobListener, KeyMatcher.keyEquals(awsJobKeyFirst));
+    }
+
+    /**
+     * 
+     * @param awsjob
+     * @apiNote schedule all job which current reside in scheduler
+     */
+    public void scheduleCurrentJob(AWSJob awsJob) throws SchedulerException {
+        // find corresponding job detail stored in scheduler
+        JobKey awsJobKey = this.jobGenerator.genJobKey(awsJob);
+        JobDetail awsJobDetail = this.scheduler.getJobDetail(awsJobKey);
+
+        JobDataMap jobDataMap = awsJobDetail.getJobDataMap();
+        Trigger trigger = (Trigger) jobDataMap.get(JOB_TRIGGER);
+
+        //Add jobNow to scheduler
+        if (trigger != null) 
+            this.scheduler.scheduleJob(trigger);
     }
 }

@@ -7,11 +7,8 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
-import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
-import org.quartz.Trigger;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.impl.matchers.NotMatcher;
 import org.slf4j.Logger;
@@ -21,7 +18,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import com.github.datnguyenzzz.Components.QuartzJobGenerator;
 import com.github.datnguyenzzz.Components.QuartzScheduler;
 import com.github.datnguyenzzz.Handlers.AddJobHandler;
 import com.github.datnguyenzzz.Interfaces.CronJobProvider;
@@ -42,9 +38,6 @@ public class SchedulerExecution {
 
     @Autowired
     private QuartzScheduler scheduler;
-
-    @Autowired
-    private QuartzJobGenerator jobGenerator;
 
     @Autowired
     private AddJobHandler addJobHandler;
@@ -118,18 +111,7 @@ public class SchedulerExecution {
         Map<String, AWSJob> jobHashMap = jobList.getJobHashMap();
         for (String jobName: jobHashMap.keySet()) {
             AWSJob awsJob = jobHashMap.get(jobName);
-            
-            // find corresponding job detail stored in scheduler
-            JobKey awsJobKey = this.jobGenerator.genJobKey(awsJob);
-            JobDetail awsJobDetail = this.scheduler.getJobDetail(awsJobKey);
-
-            JobDataMap jobDataMap = awsJobDetail.getJobDataMap();
-            Trigger trigger = (Trigger) jobDataMap.get(JOB_TRIGGER);
-
-            //Add jobNow to scheduler
-            if (trigger != null) 
-                this.scheduler.scheduleJob(trigger);
-
+            this.addJobHandler.scheduleCurrentJob(awsJob);
         }
     }
 
