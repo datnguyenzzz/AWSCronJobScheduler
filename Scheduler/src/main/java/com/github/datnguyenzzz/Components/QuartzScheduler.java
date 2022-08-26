@@ -14,12 +14,17 @@ import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.github.datnguyenzzz.Exceptions.SystemException;
 import com.github.datnguyenzzz.Factories.PublishingJobFactory;
 
+/**
+ * @implNote Make sure Quartz Scheduler is singleton
+ */
 @Component("quartzScheduler")
+@Scope("singleton")
 public class QuartzScheduler {
     
     private Scheduler scheduler;

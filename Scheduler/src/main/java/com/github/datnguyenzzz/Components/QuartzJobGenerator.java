@@ -13,6 +13,7 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.github.datnguyenzzz.Jobs.HealthCheck;
@@ -20,7 +21,11 @@ import com.github.datnguyenzzz.Jobs.PublishingJob;
 import com.github.datnguyenzzz.dto.AWSJob;
 import com.github.datnguyenzzz.dto.Message;
 
+/**
+ * @implNote Job generator is singleton
+ */
 @Component
+@Scope("singleton")
 public class QuartzJobGenerator {
 
     @Value("${verbal.jobTrigger}")

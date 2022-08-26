@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 
 import com.github.datnguyenzzz.Components.QuartzJobGenerator;
 import com.github.datnguyenzzz.Components.QuartzScheduler;
+import com.github.datnguyenzzz.Handlers.AddJobHandler;
 import com.github.datnguyenzzz.Interfaces.CronJobProvider;
 import com.github.datnguyenzzz.dto.AWSJob;
 import com.github.datnguyenzzz.dto.JobListDefinition;
@@ -44,6 +45,9 @@ public class SchedulerExecution {
 
     @Autowired
     private QuartzJobGenerator jobGenerator;
+
+    @Autowired
+    private AddJobHandler addJobHandler;
 
     @Autowired
     private JobHealthyStatusUpdateTriggerListener healthyTriggerListener;
@@ -76,8 +80,9 @@ public class SchedulerExecution {
         for (String jobName: jobHashMap.keySet()) {
             // init store data map
             AWSJob awsJob = jobHashMap.get(jobName);
-            JobDetail awsJobDetail = jobGenerator.genPublishingJobDetail(awsJob);
-            this.scheduler.addJob(awsJobDetail, false);
+            //JobDetail awsJobDetail = jobGenerator.genPublishingJobDetail(awsJob);
+            //this.scheduler.addJob(awsJobDetail, false);
+            this.addJobHandler.addNewJob(awsJob);
         }
     }
 

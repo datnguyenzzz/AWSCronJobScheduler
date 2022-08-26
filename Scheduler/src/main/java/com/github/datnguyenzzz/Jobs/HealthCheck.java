@@ -15,8 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.github.datnguyenzzz.Components.HealthCheckHandler;
 import com.github.datnguyenzzz.Components.QuartzScheduler;
+import com.github.datnguyenzzz.Handlers.HealthCheckHandler;
 
 @Component
 @PersistJobDataAfterExecution

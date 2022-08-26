@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.github.datnguyenzzz.Components.HealthCheckHandler;
+import com.github.datnguyenzzz.Handlers.HealthCheckHandler;
 import com.github.datnguyenzzz.dto.HealthStatus;
 
 @RestController
