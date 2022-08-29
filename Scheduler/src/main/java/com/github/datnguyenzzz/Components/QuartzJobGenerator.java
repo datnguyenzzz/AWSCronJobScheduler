@@ -186,6 +186,10 @@ public class QuartzJobGenerator {
         return genJobKey(job, PUBLISH_JOB_GROUP);
     }
 
+    public JobKey genJobKey(String name) {
+        return new JobKey(name, PUBLISH_JOB_GROUP);
+    }
+
     /**
      * 
      * @param name
@@ -203,4 +207,6 @@ public class QuartzJobGenerator {
     public TriggerKey genTriggerKey(AWSJob job) {
         return genTriggerKey(job, PUBLISH_TRIGGER_GROUP);
     }
+
+    
 }

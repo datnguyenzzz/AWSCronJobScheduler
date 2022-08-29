@@ -5,6 +5,8 @@ import java.util.List;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
+import org.quartz.JobListener;
+import org.quartz.Matcher;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.impl.matchers.KeyMatcher;
@@ -63,13 +65,34 @@ public class AddJobHandler {
         // prepare list of next job
         for (AWSJob awsJobNext : listJobsExecuteNext) {
             JobKey awsJobNextKey = this.jobGenerator.genJobKey(awsJobNext);
-            JobDetail awsJobDetail = this.scheduler.getJobDetail(awsJobNextKey);
+            JobDetail awsJobDetail = this.getJobDetailFromKey(awsJobNextKey);
 
             executionJobListener.addToJobExecuteNext(awsJobDetail);
         }
 
         //add listener to Job that match JobKey
-        this.scheduler.getListenerManager().addJobListener(executionJobListener, KeyMatcher.keyEquals(awsJobKeyFirst));
+        this.addJobListener(executionJobListener, KeyMatcher.keyEquals(awsJobKeyFirst));
+    }
+
+    /**
+     * 
+     * @param jobListener
+     * @param matcher
+     * @throws SchedulerException
+     * @apiNote immutable
+     */
+    public void addJobListener(JobListener jobListener, Matcher<JobKey> matcher) throws SchedulerException {
+        this.scheduler.getListenerManager().addJobListener(jobListener, matcher);
+    }
+
+    /**
+     * 
+     * @param JobKey
+     * @return JobDetail
+     */
+    public JobDetail getJobDetailFromKey(JobKey key) throws SchedulerException {
+        JobDetail jobDetail = this.scheduler.getJobDetail(key);
+        return jobDetail;
     }
 
     /**
