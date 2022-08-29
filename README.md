@@ -2,6 +2,11 @@
 
 Automatically arrange based on specific predefined firing schedules and periodically check the health statuses ofcustomizable tasks, which involved Amazon Web Services.
 
+## AWS actions (*will be updated more feature*) 
+
+- Sent an event to AWS SQS 
+- Sent an event to AWS Kinesis
+
 ## Required enviroment variables 
 
 | Name | Example | Description |
@@ -23,7 +28,6 @@ Definiton of cron and message to be sent described in YAML format. Job can be fi
 > DISCLAIMER: Currently only support tree like architecture. In future will be support DAG type. 
 
 ```
-#http://www.quartz-scheduler.org/documentation/2.4.0-SNAPSHOT/tutorials/tutorial-lesson-06.html
 #supported tree architecture only
 jobList:
   - name: "Upload to SQS #1"
@@ -53,3 +57,34 @@ jobList:
     usedService: "Kinesis"
     lambdaActionFile: "xyz/ghi/dfc.java"
 ```
+
+Plain java object (POJO) represent a legitimate job
+
+```
+public class AWSJob extends Object {
+    
+    @Getter @Setter
+    private String name;
+
+    @Getter @Setter
+    private String cronTrigger;
+
+    @Getter @Setter
+    private List<Message> messages;
+
+    @Getter @Setter
+    private String usedService;
+
+    @Getter @Setter
+    private String afterJobDone;
+
+    @Getter @Setter
+    private String lambdaActionFile;
+
+}
+```
+
+## REST Api list:
+
+- /hs : Return JSON health status of all job within scheduler
+- /addNewJob : Add new job into scheduler
