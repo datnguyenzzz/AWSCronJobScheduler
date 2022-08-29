@@ -3,16 +3,13 @@ package com.github.datnguyenzzz.Actions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
-import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
-import org.quartz.Trigger;
 import org.quartz.impl.matchers.GroupMatcher;
-import org.quartz.impl.matchers.KeyMatcher;
 import org.quartz.impl.matchers.NotMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +18,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import com.github.datnguyenzzz.Components.QuartzJobGenerator;
 import com.github.datnguyenzzz.Components.QuartzScheduler;
+import com.github.datnguyenzzz.Handlers.AddJobHandler;
 import com.github.datnguyenzzz.Interfaces.CronJobProvider;
 import com.github.datnguyenzzz.dto.AWSJob;
 import com.github.datnguyenzzz.dto.JobListDefinition;
@@ -43,7 +40,7 @@ public class SchedulerExecution {
     private QuartzScheduler scheduler;
 
     @Autowired
-    private QuartzJobGenerator jobGenerator;
+    private AddJobHandler addJobHandler;
 
     @Autowired
     private JobHealthyStatusUpdateTriggerListener healthyTriggerListener;
@@ -76,8 +73,7 @@ public class SchedulerExecution {
         for (String jobName: jobHashMap.keySet()) {
             // init store data map
             AWSJob awsJob = jobHashMap.get(jobName);
-            JobDetail awsJobDetail = jobGenerator.genPublishingJobDetail(awsJob);
-            this.scheduler.addJob(awsJobDetail, false);
+            this.addJobHandler.addNewJob(awsJob);
         }
     }
 
@@ -92,27 +88,16 @@ public class SchedulerExecution {
 
         for(String jobName: jobHashMap.keySet()) {
             AWSJob awsJob = jobHashMap.get(jobName);
-            JobKey awsJobKey = this.jobGenerator.genJobKey(awsJob);
 
             if (!jobExecutionOrder.containsKey(jobName)) continue;
             if (jobExecutionOrder.get(jobName).size() == 0) continue;
 
-            SequentialExecutionJobListener executionJobListener = ctx.getBean(SequentialExecutionJobListener.class);
+            //tranfrom List<Job_Name> -> List<Job_Object>
+            List<AWSJob> listJobsNext = jobExecutionOrder.get(jobName).stream()
+                                            .map(name -> jobHashMap.get(name))
+                                            .collect(Collectors.toList());
 
-            executionJobListener.setScheduler(this.scheduler);
-            executionJobListener.setName(awsJobKey.toString());
-
-            // prepare list of next job
-            for (String jobNextName : jobExecutionOrder.get(jobName)) {
-                AWSJob awsJobNext = jobHashMap.get(jobNextName);
-                JobKey awsJobNextKey = this.jobGenerator.genJobKey(awsJobNext);
-                JobDetail awsJobDetail = this.scheduler.getJobDetail(awsJobNextKey);
-
-                executionJobListener.addToJobExecuteNext(awsJobDetail);
-            }
-
-            //add listener to Job that match JobKey
-            this.scheduler.getListenerManager().addJobListener(executionJobListener, KeyMatcher.keyEquals(awsJobKey));
+            this.addJobHandler.addSequentialTrigger(awsJob, listJobsNext);
         }
     }
 
@@ -126,18 +111,7 @@ public class SchedulerExecution {
         Map<String, AWSJob> jobHashMap = jobList.getJobHashMap();
         for (String jobName: jobHashMap.keySet()) {
             AWSJob awsJob = jobHashMap.get(jobName);
-            
-            // find corresponding job detail stored in scheduler
-            JobKey awsJobKey = this.jobGenerator.genJobKey(awsJob);
-            JobDetail awsJobDetail = this.scheduler.getJobDetail(awsJobKey);
-
-            JobDataMap jobDataMap = awsJobDetail.getJobDataMap();
-            Trigger trigger = (Trigger) jobDataMap.get(JOB_TRIGGER);
-
-            //Add jobNow to scheduler
-            if (trigger != null) 
-                this.scheduler.scheduleJob(trigger);
-
+            this.addJobHandler.scheduleCurrentJob(awsJob);
         }
     }
 

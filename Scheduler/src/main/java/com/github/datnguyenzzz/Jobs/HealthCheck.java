@@ -1,5 +1,7 @@
 package com.github.datnguyenzzz.Jobs;
 
+import java.time.LocalDateTime;
+
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -9,10 +11,12 @@ import org.quartz.PersistJobDataAfterExecution;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.github.datnguyenzzz.Components.QuartzScheduler;
+import com.github.datnguyenzzz.Handlers.HealthCheckHandler;
 
 @Component
 @PersistJobDataAfterExecution
@@ -39,6 +43,9 @@ public class HealthCheck implements Job {
     @Value("${verbal.healthCheckGroup}")
     private String HEALTH_CHECK_GROUP;
 
+    @Autowired
+    private HealthCheckHandler healthCheckHandler;
+
     private final Logger logger = LoggerFactory.getLogger(HealthCheck.class);
 
     @Override
@@ -63,6 +70,14 @@ public class HealthCheck implements Job {
                     logger.info("\t Misfired: " + jobDataMap.getInt(JOB_MISFIRED));
                     logger.info("\t Completed: " + jobDataMap.getInt(JOB_COMPLETED));
                     logger.info("\t Status: " + jobDataMap.getString(JOB_STATUS));
+
+                    // add into health check handler
+                    this.healthCheckHandler.addToHashMap(count, LocalDateTime.now(), 
+                                                        jobKey.toString(), 
+                                                        jobDataMap.getInt(JOB_FIRED), 
+                                                        jobDataMap.getInt(JOB_MISFIRED), 
+                                                        jobDataMap.getInt(JOB_COMPLETED), 
+                                                        jobDataMap.getString(JOB_STATUS));
                 }
             }
         }

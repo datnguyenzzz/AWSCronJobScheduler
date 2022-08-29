@@ -13,6 +13,7 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.github.datnguyenzzz.Jobs.HealthCheck;
@@ -20,7 +21,11 @@ import com.github.datnguyenzzz.Jobs.PublishingJob;
 import com.github.datnguyenzzz.dto.AWSJob;
 import com.github.datnguyenzzz.dto.Message;
 
+/**
+ * @implNote Job generator is singleton
+ */
 @Component
+@Scope("singleton")
 public class QuartzJobGenerator {
 
     @Value("${verbal.jobTrigger}")
@@ -162,8 +167,8 @@ public class QuartzJobGenerator {
     public JobKey genJobKey(AWSJob job, String group) {
         StringBuilder sb = new StringBuilder();
         sb.append(group);
-        sb.append("-");
-        sb.append(job.getUsedService().toUpperCase());
+        //sb.append("-");
+        //sb.append(job.getUsedService().toUpperCase());
         return new JobKey(job.getName(), sb.toString());
     }
 
@@ -179,6 +184,10 @@ public class QuartzJobGenerator {
 
     public JobKey genJobKey(AWSJob job) {
         return genJobKey(job, PUBLISH_JOB_GROUP);
+    }
+
+    public JobKey genJobKey(String name) {
+        return new JobKey(name, PUBLISH_JOB_GROUP);
     }
 
     /**
@@ -198,4 +207,6 @@ public class QuartzJobGenerator {
     public TriggerKey genTriggerKey(AWSJob job) {
         return genTriggerKey(job, PUBLISH_TRIGGER_GROUP);
     }
+
+
 }
