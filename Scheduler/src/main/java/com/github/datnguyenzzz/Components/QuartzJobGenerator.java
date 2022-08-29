@@ -167,8 +167,8 @@ public class QuartzJobGenerator {
     public JobKey genJobKey(AWSJob job, String group) {
         StringBuilder sb = new StringBuilder();
         sb.append(group);
-        sb.append("-");
-        sb.append(job.getUsedService().toUpperCase());
+        //sb.append("-");
+        //sb.append(job.getUsedService().toUpperCase());
         return new JobKey(job.getName(), sb.toString());
     }
 
@@ -208,5 +208,5 @@ public class QuartzJobGenerator {
         return genTriggerKey(job, PUBLISH_TRIGGER_GROUP);
     }
 
-    
+
 }

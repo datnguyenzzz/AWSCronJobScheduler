@@ -10,6 +10,8 @@ import org.quartz.Matcher;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.impl.matchers.KeyMatcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -23,6 +25,7 @@ import com.github.datnguyenzzz.dto.AWSJob;
 
 @Component
 @Scope("prototype")
+@SuppressWarnings("unused")
 public class AddJobHandler {
 
     @Autowired
@@ -33,6 +36,8 @@ public class AddJobHandler {
 
     @Autowired
     private ApplicationContext ctx;
+
+    private final Logger logger = LoggerFactory.getLogger(AddJobHandler.class);
 
     @Value("${verbal.jobTrigger}")
     private String JOB_TRIGGER;
@@ -51,7 +56,7 @@ public class AddJobHandler {
      * 
      * @param jobExecuteFirst
      * @param jobsExecuteNext
-     * @apiNote Add trigger to handle sequential execution
+     * @apiNote Add trigger to handle sequential execution of list of job
      */
     public void addSequentialTrigger(AWSJob jobExecuteFirst, List<AWSJob> listJobsExecuteNext) throws SchedulerException {
         
@@ -69,6 +74,33 @@ public class AddJobHandler {
 
             executionJobListener.addToJobExecuteNext(awsJobDetail);
         }
+
+        //add listener to Job that match JobKey
+        this.addJobListener(executionJobListener, KeyMatcher.keyEquals(awsJobKeyFirst));
+    }
+
+    /**
+     * 
+     * @param jobExecuteFirst
+     * @param jobExecuteNext
+     * @apiNote handle job sequential trigger
+     */
+    public void addSequentialTrigger(String jobExecuteFirst, AWSJob jobExecuteNext) throws SchedulerException {
+        JobKey awsJobKeyFirst = this.jobGenerator.genJobKey(jobExecuteFirst);
+
+        SequentialExecutionJobListener executionJobListener = ctx.getBean(SequentialExecutionJobListener.class);
+
+        executionJobListener.setScheduler(this.scheduler);
+        executionJobListener.setName(awsJobKeyFirst.toString() + " bonus");
+
+        JobKey awsJobKeyNext = this.jobGenerator.genJobKey(jobExecuteNext);
+        JobDetail awsJobDetailNext = this.getJobDetailFromKey(awsJobKeyNext);
+
+        logger.info("FUCKKKKK \n" 
+                    + "First job : " + awsJobKeyFirst.toString() + "\n"
+                    + "Second job: " + awsJobKeyNext.toString() + "\n");
+
+        executionJobListener.addToJobExecuteNext(awsJobDetailNext);
 
         //add listener to Job that match JobKey
         this.addJobListener(executionJobListener, KeyMatcher.keyEquals(awsJobKeyFirst));
@@ -112,4 +144,5 @@ public class AddJobHandler {
         if (trigger != null) 
             this.scheduler.scheduleJob(trigger);
     }
+
 }

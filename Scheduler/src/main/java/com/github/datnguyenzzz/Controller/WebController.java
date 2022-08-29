@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.quartz.JobDetail;
-import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.github.datnguyenzzz.Components.QuartzJobGenerator;
 import com.github.datnguyenzzz.Handlers.AddJobHandler;
 import com.github.datnguyenzzz.Handlers.HealthCheckHandler;
 import com.github.datnguyenzzz.dto.AWSJob;
@@ -29,9 +26,6 @@ public class WebController {
 
     @Autowired
     private AddJobHandler addJobHandler;
-
-    @Autowired
-    private QuartzJobGenerator quartzJobGenerator;
 
     @GetMapping("/")
     public String index() throws Exception {
@@ -48,15 +42,16 @@ public class WebController {
     @PostMapping("/addNewJob")
     public ResponseEntity<String> addNewJob(@RequestBody AWSJob awsJob) {
         try {
+            //add job to storage
             this.addJobHandler.addNewJob(awsJob);
-
-            // find already stored job within scheduler storage
+            //if sequential is applied
             String jobBeforeName = awsJob.getAfterJobDone();
-            JobKey jobBeforeKey = this.quartzJobGenerator.genJobKey(jobBeforeName);
-            JobDetail jobBeforeDetail = this.addJobHandler.getJobDetailFromKey(jobBeforeKey);
-
-            //
-            return null;
+            if (jobBeforeName != null && !jobBeforeName.equals(""))
+                this.addJobHandler.addSequentialTrigger(jobBeforeName, awsJob);
+            //schedule this one
+            this.addJobHandler.scheduleCurrentJob(awsJob);
+            return ResponseEntity.status(HttpStatus.ACCEPTED)
+                    .body("Add job - " + awsJob.getName() + " successfully");
         }
         catch (SchedulerException ex) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
