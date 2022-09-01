@@ -20,6 +20,6 @@ services:
       AWS_ACCESS_KEY: "aws access key"
       AWS_SECRET_KEY: "aws secret key"
       AWS_CREDENTIALS_TARGET: "aws credentials file"
-      NUM_SCHEDULER_ENGINE: ${NUM_SCHEDULER_ENGINE}
+      NUM_SCHEDULER_ENGINES: ${NUM_SCHEDULER_ENGINE}
 
     command: "java -Xmx256m -jar /AWSCronJob/scheduler.jar"

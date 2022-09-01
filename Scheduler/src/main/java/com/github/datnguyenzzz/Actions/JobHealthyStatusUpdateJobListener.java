@@ -57,14 +57,7 @@ public class JobHealthyStatusUpdateJobListener implements JobListener {
 
     @Override
     public void jobWasExecuted(JobExecutionContext jobCtx, JobExecutionException arg1) {
-
-        JobDataMap dataMap = jobCtx.getJobDetail().getJobDataMap();
-        int oldCompleted = dataMap.getInt(JOB_COMPLETED);
-        //update job fired number
-        dataMap.put(JOB_COMPLETED, ++oldCompleted);
-        //update job current status
-        dataMap.put(JOB_STATUS, IS_FINISHED);
-        
+        //nothing
     }
     
 }
