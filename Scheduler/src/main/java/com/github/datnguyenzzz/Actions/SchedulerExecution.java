@@ -19,10 +19,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import com.github.datnguyenzzz.Components.QuartzScheduler;
-import com.github.datnguyenzzz.Handlers.AddJobHandler;
+import com.github.datnguyenzzz.Entities.AWSJob;
+import com.github.datnguyenzzz.Entities.JobListDefinition;
 import com.github.datnguyenzzz.Interfaces.CronJobProvider;
-import com.github.datnguyenzzz.dto.AWSJob;
-import com.github.datnguyenzzz.dto.JobListDefinition;
+import com.github.datnguyenzzz.Services.AddJobService;
 
 @Component
 public class SchedulerExecution {
@@ -40,7 +40,7 @@ public class SchedulerExecution {
     private QuartzScheduler scheduler;
 
     @Autowired
-    private AddJobHandler addJobHandler;
+    private AddJobService addJobHandler;
 
     @Autowired
     private JobHealthyStatusUpdateTriggerListener healthyTriggerListener;

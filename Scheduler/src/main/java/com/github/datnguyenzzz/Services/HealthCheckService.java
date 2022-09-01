@@ -1,4 +1,4 @@
-package com.github.datnguyenzzz.Handlers;
+package com.github.datnguyenzzz.Services;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -9,14 +9,14 @@ import javax.annotation.PostConstruct;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.github.datnguyenzzz.dto.HealthStatus;
+import com.github.datnguyenzzz.Entities.HealthStatus;
 
 /**
  * Handle everytime health check job finish
  */
 @Component
 @Scope("singleton")
-public class HealthCheckHandler {
+public class HealthCheckService {
 
     private Map<Integer, HealthStatus> allHealthStatus;
 

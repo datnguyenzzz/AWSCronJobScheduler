@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.github.datnguyenzzz.Components.QuartzScheduler;
-import com.github.datnguyenzzz.Handlers.HealthCheckHandler;
+import com.github.datnguyenzzz.Services.HealthCheckService;
 
 @Component
 @PersistJobDataAfterExecution
@@ -44,7 +44,7 @@ public class HealthCheck implements Job {
     private String HEALTH_CHECK_GROUP;
 
     @Autowired
-    private HealthCheckHandler healthCheckHandler;
+    private HealthCheckService healthCheckHandler;
 
     private final Logger logger = LoggerFactory.getLogger(HealthCheck.class);
 

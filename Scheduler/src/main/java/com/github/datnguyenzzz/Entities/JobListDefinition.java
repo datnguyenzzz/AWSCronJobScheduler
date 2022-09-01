@@ -1,4 +1,4 @@
-package com.github.datnguyenzzz.dto;
+package com.github.datnguyenzzz.Entities;
 
 import java.util.HashMap;
 import java.util.List;

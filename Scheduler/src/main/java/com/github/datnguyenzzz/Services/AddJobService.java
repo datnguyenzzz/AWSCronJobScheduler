@@ -1,4 +1,4 @@
-package com.github.datnguyenzzz.Handlers;
+package com.github.datnguyenzzz.Services;
 
 import java.util.List;
 
@@ -21,12 +21,12 @@ import org.springframework.stereotype.Component;
 import com.github.datnguyenzzz.Actions.SequentialExecutionJobListener;
 import com.github.datnguyenzzz.Components.QuartzJobGenerator;
 import com.github.datnguyenzzz.Components.QuartzScheduler;
-import com.github.datnguyenzzz.dto.AWSJob;
+import com.github.datnguyenzzz.Entities.AWSJob;
 
 @Component
 @Scope("prototype")
 @SuppressWarnings("unused")
-public class AddJobHandler {
+public class AddJobService {
 
     @Autowired
     private QuartzScheduler scheduler;
@@ -37,7 +37,7 @@ public class AddJobHandler {
     @Autowired
     private ApplicationContext ctx;
 
-    private final Logger logger = LoggerFactory.getLogger(AddJobHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(AddJobService.class);
 
     @Value("${verbal.jobTrigger}")
     private String JOB_TRIGGER;

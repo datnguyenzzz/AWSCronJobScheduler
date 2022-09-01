@@ -9,8 +9,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.github.datnguyenzzz.Components.CronJobConfiguration;
+import com.github.datnguyenzzz.Entities.JobListDefinition;
 import com.github.datnguyenzzz.Interfaces.CronJobProvider;
-import com.github.datnguyenzzz.dto.JobListDefinition;
 
 /**
  * Currently have bean:

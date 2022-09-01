@@ -13,19 +13,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.github.datnguyenzzz.Handlers.AddJobHandler;
-import com.github.datnguyenzzz.Handlers.HealthCheckHandler;
-import com.github.datnguyenzzz.dto.AWSJob;
-import com.github.datnguyenzzz.dto.HealthStatus;
+import com.github.datnguyenzzz.Entities.AWSJob;
+import com.github.datnguyenzzz.Entities.HealthStatus;
+import com.github.datnguyenzzz.Services.AddJobService;
+import com.github.datnguyenzzz.Services.HealthCheckService;
 
 @RestController
 public class WebController {
 
     @Autowired
-    private HealthCheckHandler healthCheckHandler;
+    private HealthCheckService healthCheckHandler;
 
     @Autowired
-    private AddJobHandler addJobHandler;
+    private AddJobService addJobHandler;
 
     @GetMapping("/")
     public String index() throws Exception {

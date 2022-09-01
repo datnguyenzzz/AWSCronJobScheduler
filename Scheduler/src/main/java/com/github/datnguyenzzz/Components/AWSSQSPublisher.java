@@ -4,8 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import com.github.datnguyenzzz.Entities.AWSJob;
 import com.github.datnguyenzzz.Interfaces.AWSPublisher;
-import com.github.datnguyenzzz.dto.AWSJob;
 
 @Component("awsSQSPublisher")
 public class AWSSQSPublisher implements AWSPublisher {

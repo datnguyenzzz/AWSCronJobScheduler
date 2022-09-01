@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.github.datnguyenzzz.Entities.JobListDefinition;
 import com.github.datnguyenzzz.Exceptions.SystemException;
 import com.github.datnguyenzzz.Interfaces.CronJobProvider;
-import com.github.datnguyenzzz.dto.JobListDefinition;
 
 @Component("localCronJobProvider")
 public class LocalCronJobProvider implements CronJobProvider {
