@@ -86,5 +86,11 @@ public class AWSJob extends Object {
 
 ## REST Api list:
 
+_Scheduler will automatically distributed a job to appropriate schedule engine_
+
 - /hs : Return JSON health status of all job within scheduler
 - /addNewJob : Add new job into scheduler
+
+## Plan architecture
+
+![alt text](https://raw.githubusercontent.com/datnguyenzzz/AWSCronJob/develop/Assets/design.png)
