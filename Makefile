@@ -2,7 +2,7 @@ DOCKER_NETWORK = awscronjob_default
 
 build:
 	mvn clean install
-	docker-compose up -d 
+	docker-compose --env-file ./Env/test.env up -d 
 	docker-compose ps 
 
 destroy:

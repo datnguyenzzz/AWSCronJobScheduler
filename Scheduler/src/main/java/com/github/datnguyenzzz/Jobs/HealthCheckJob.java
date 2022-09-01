@@ -20,7 +20,7 @@ import com.github.datnguyenzzz.Services.HealthCheckService;
 
 @Component
 @PersistJobDataAfterExecution
-public class HealthCheck implements Job {
+public class HealthCheckJob implements Job {
 
     @Value("${verbal.jobFired}")
     private String JOB_FIRED;
@@ -46,7 +46,7 @@ public class HealthCheck implements Job {
     @Autowired
     private HealthCheckService healthCheckHandler;
 
-    private final Logger logger = LoggerFactory.getLogger(HealthCheck.class);
+    private final Logger logger = LoggerFactory.getLogger(HealthCheckJob.class);
 
     @Override
     public void execute(JobExecutionContext jobCtx) throws JobExecutionException {

@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 
 import com.github.datnguyenzzz.Entities.AWSJob;
 import com.github.datnguyenzzz.Entities.Message;
-import com.github.datnguyenzzz.Jobs.HealthCheck;
+import com.github.datnguyenzzz.Jobs.HealthCheckJob;
 import com.github.datnguyenzzz.Jobs.PublishingJob;
 
 /**
@@ -150,7 +150,7 @@ public class QuartzJobGenerator {
         hMap.put(JOB_TRIGGER, trigger);
 
         //gen job
-        JobDetail jobDetail = JobBuilder.newJob(HealthCheck.class)
+        JobDetail jobDetail = JobBuilder.newJob(HealthCheckJob.class)
                                 .withIdentity(jobKey)
                                 .storeDurably(true)
                                 .usingJobData(new JobDataMap(hMap))

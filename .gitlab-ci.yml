@@ -14,7 +14,7 @@ build_docker_image:
   stage: build
   script:
     - echo "Start building docker image ..."
-    - docker-compose up -d 
+    - docker-compose --env-file ./Env/test.env up -d 
     - docker-compose down
     - echo "Done"
 
@@ -33,7 +33,7 @@ deploy_project:
     - docker login -u "$CD_DOCKER_HUB_USER" -p "$CD_DOCKER_HUB_PASSWORD"
   script:
     - echo "Start deploying to Docker hub ..."
-    - docker-compose up -d
+    - docker-compose --env-file ./Env/deploy.env up -d
     - docker push "$CD_DOCKER_HUB_IMAGE"
     - docker-compose down
     - echo "Done"
