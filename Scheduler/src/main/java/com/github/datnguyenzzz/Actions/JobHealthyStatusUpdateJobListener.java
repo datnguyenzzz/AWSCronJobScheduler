@@ -4,29 +4,16 @@ import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.JobListener;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.github.datnguyenzzz.Services.QuartzJobGeneratorService;
 
 @Component
 public class JobHealthyStatusUpdateJobListener implements JobListener {
 
-    @Value("${verbal.jobFired}")
-    private String JOB_FIRED;
-
-    @Value("${verbal.jobMisFired}")
-    private String JOB_MISFIRED;
-
-    @Value("${verbal.jobStatus}")
-    private String JOB_STATUS;
-
-    @Value("${verbal.isFinished}")
-    private String IS_FINISHED;
-
-    @Value("${verbal.jobCompleted}")
-    private String JOB_COMPLETED;
-
-    @Value("${verbal.isRunning}")
-    private String IS_RUNNING;
+    @Autowired
+    private QuartzJobGeneratorService quartzJobGeneratorService;
 
     private String name;
 
@@ -48,16 +35,17 @@ public class JobHealthyStatusUpdateJobListener implements JobListener {
     @Override
     public void jobToBeExecuted(JobExecutionContext jobCtx) {
         JobDataMap dataMap = jobCtx.getJobDetail().getJobDataMap();
-        int oldFired = dataMap.getInt(JOB_FIRED);
         //update job fired number
-        dataMap.put(JOB_FIRED, ++oldFired);
+        this.quartzJobGeneratorService.addHSJobFired(dataMap);
         //update job current status
-        dataMap.put(JOB_STATUS, IS_RUNNING);
+        this.quartzJobGeneratorService.setHSJobStatusIsRunning(dataMap);
     }
 
     @Override
     public void jobWasExecuted(JobExecutionContext jobCtx, JobExecutionException arg1) {
         //nothing
+        JobDataMap dataMap = jobCtx.getJobDetail().getJobDataMap();
+        this.quartzJobGeneratorService.setHSJobStatusIsFinnished(dataMap);
     }
     
 }

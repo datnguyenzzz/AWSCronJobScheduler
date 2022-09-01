@@ -67,6 +67,9 @@ public class QuartzJobGeneratorService {
     @Value("${verbal.jobName}")
     private String JOB_NAME;
 
+    @Value("${verbal.isRunning}")
+    private String IS_RUNNING;
+
     public QuartzJobGeneratorService() {}
 
     /**
@@ -95,6 +98,36 @@ public class QuartzJobGeneratorService {
     public void setHSJobName(JobDataMap jobDataMap, String name) {
         jobDataMap.put(JOB_NAME, name);
     }
+
+    public void setHSJobStatusIsRunning(JobDataMap jobDataMap) {
+        jobDataMap.put(JOB_STATUS, IS_RUNNING);
+    }
+
+    public void setHSJobStatusIsFinnished(JobDataMap jobDataMap) {
+        jobDataMap.put(JOB_STATUS, IS_FINISHED);
+    }
+
+    public void addHSJobFired(JobDataMap jobDataMap) {
+        int oldFired = jobDataMap.getInt(JOB_FIRED);
+        //update job fired number
+        jobDataMap.put(JOB_FIRED, ++oldFired);
+        //update job current status
+    }
+
+    public void addHSJobComplete(JobDataMap jobDataMap) {
+        int old = jobDataMap.getInt(JOB_COMPLETED);
+        //update job fired number
+        jobDataMap.put(JOB_COMPLETED, ++old);
+        //update job current status
+    }
+
+    public void addHSJobFailed(JobDataMap jobDataMap) {
+        int old = jobDataMap.getInt(JOB_FAILED);
+        //update job fired number
+        jobDataMap.put(JOB_FAILED, ++old);
+        //update job current status
+    }
+
 
     /**
      * 

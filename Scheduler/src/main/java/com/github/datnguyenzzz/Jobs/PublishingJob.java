@@ -4,6 +4,7 @@ import javax.annotation.PostConstruct;
 
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
+import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.PersistJobDataAfterExecution;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import com.github.datnguyenzzz.Factories.AWSPublisherFactory;
 import com.github.datnguyenzzz.Interfaces.AWSPublisher;
+import com.github.datnguyenzzz.Services.QuartzJobGeneratorService;
 
 /**
  * @apiNote Multiple instances of the job will not be allowed to run concurrently 
@@ -29,6 +31,9 @@ public class PublishingJob implements Job {
     @Autowired
     private ApplicationContext ctx;
 
+    @Autowired
+    private QuartzJobGeneratorService quartzJobGeneratorService;
+
     private AWSPublisherFactory awsPublisherFactory;
 
     @PostConstruct
@@ -44,15 +49,19 @@ public class PublishingJob implements Job {
             String usedService = jobDetail.getDescription();
 
             String jobName = jobDetail.getKey().toString();
+            JobDataMap dataMap = jobExecutionContext.getJobDetail().getJobDataMap();
             
             // TODO: Trigger AWS publisher
             AWSPublisher publisher = this.awsPublisherFactory.getObject(usedService);
             publisher.publish(jobName);
 
             // update job completed
+            this.quartzJobGeneratorService.addHSJobComplete(dataMap);
         }
         catch (Exception ex) {
             // update job failed
+            JobDataMap dataMap = jobExecutionContext.getJobDetail().getJobDataMap();
+            this.quartzJobGeneratorService.addHSJobFailed(dataMap);
         }
     }
     
