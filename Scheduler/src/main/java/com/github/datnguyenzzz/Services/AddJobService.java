@@ -19,7 +19,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.github.datnguyenzzz.Actions.SequentialExecutionJobListener;
-import com.github.datnguyenzzz.Components.QuartzJobGenerator;
 import com.github.datnguyenzzz.Components.QuartzScheduler;
 import com.github.datnguyenzzz.Entities.AWSJob;
 
@@ -32,7 +31,7 @@ public class AddJobService {
     private QuartzScheduler scheduler;
 
     @Autowired
-    private QuartzJobGenerator jobGenerator;
+    private QuartzJobGeneratorService jobGenerator;
 
     @Autowired
     private ApplicationContext ctx;

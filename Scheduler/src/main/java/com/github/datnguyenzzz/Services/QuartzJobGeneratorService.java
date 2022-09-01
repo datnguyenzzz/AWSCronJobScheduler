@@ -1,5 +1,6 @@
-package com.github.datnguyenzzz.Components;
+package com.github.datnguyenzzz.Services;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,16 +18,18 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.github.datnguyenzzz.Entities.AWSJob;
+import com.github.datnguyenzzz.Entities.HealthStatus;
 import com.github.datnguyenzzz.Entities.Message;
 import com.github.datnguyenzzz.Jobs.HealthCheckJob;
 import com.github.datnguyenzzz.Jobs.PublishingJob;
 
 /**
  * @implNote Job generator is singleton
+ * @apiNote Handle all relate to job creation
  */
 @Component
 @Scope("singleton")
-public class QuartzJobGenerator {
+public class QuartzJobGeneratorService {
 
     @Value("${verbal.jobTrigger}")
     private String JOB_TRIGGER;
@@ -61,7 +64,10 @@ public class QuartzJobGenerator {
     @Value("${verbal.healthCheckGroup}")
     private String HEALTH_CHECK_GROUP;
 
-    public QuartzJobGenerator() {}
+    @Value("${verbal.jobName}")
+    private String JOB_NAME;
+
+    public QuartzJobGeneratorService() {}
 
     /**
      * 
@@ -78,6 +84,31 @@ public class QuartzJobGenerator {
         hMap.put(JOB_FAILED, 0);
         hMap.put(JOB_STATUS, IS_FINISHED);
         return hMap;
+    }
+
+    /**
+     * 
+     * @param jobDataMap
+     * @param name
+     * @implNote muttable
+     */
+    public void setHSJobName(JobDataMap jobDataMap, String name) {
+        jobDataMap.put(JOB_NAME, name);
+    }
+
+    /**
+     * 
+     * @param JobDataMap
+     * @return Entity<HealthStatus>
+     */
+    public HealthStatus getHealthStatusFromDataMap(JobDataMap jobDataMap) {
+        return new HealthStatus(LocalDateTime.now(), 
+            jobDataMap.getString(JOB_NAME), 
+            jobDataMap.getInt(JOB_FIRED), 
+            jobDataMap.getInt(JOB_MISFIRED), 
+            jobDataMap.getInt(JOB_COMPLETED),
+            jobDataMap.getInt(JOB_FAILED), 
+            jobDataMap.getString(JOB_STATUS));
     }
     
     /**
@@ -129,9 +160,9 @@ public class QuartzJobGenerator {
     /**
      * 
      * @param timeWindow
-     * @return Job that will trigger aggregate time series DB
+     * @return Job that will trigger for Health CHeck job
      */
-    public JobDetail genStatusAggregateJob(int timeWindow) {
+    public JobDetail genStatusHealthCheckJob(int timeWindow) {
         //TODO: generate job with trigger inside DataMap
 
         String name = "Healthy Status Check";

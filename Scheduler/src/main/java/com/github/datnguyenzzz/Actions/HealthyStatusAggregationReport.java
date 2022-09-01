@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.github.datnguyenzzz.Components.CronJobConfiguration;
-import com.github.datnguyenzzz.Components.QuartzJobGenerator;
 import com.github.datnguyenzzz.Components.QuartzScheduler;
+import com.github.datnguyenzzz.Services.QuartzJobGeneratorService;
 
 @Component
 public class HealthyStatusAggregationReport {
@@ -30,7 +30,7 @@ public class HealthyStatusAggregationReport {
     private QuartzScheduler scheduler;
 
     @Autowired
-    private QuartzJobGenerator jobGenerator;
+    private QuartzJobGeneratorService jobGenerator;
 
     private int healthCheckTimeWindow;
 
@@ -43,7 +43,7 @@ public class HealthyStatusAggregationReport {
      * @implNote Submit a job, in which perform InfluxDB aggregate every healthCheckTimeWindow sec
      */
     public void start() throws SchedulerException {
-        JobDetail aggregateJobDetail = this.jobGenerator.genStatusAggregateJob(healthCheckTimeWindow);
+        JobDetail aggregateJobDetail = this.jobGenerator.genStatusHealthCheckJob(healthCheckTimeWindow);
 
         JobDataMap dataMap = aggregateJobDetail.getJobDataMap();
 
