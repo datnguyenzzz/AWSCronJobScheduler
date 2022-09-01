@@ -93,4 +93,4 @@ _Scheduler will automatically distributed a job to appropriate schedule engine_
 
 ## Plan architecture
 
-![alt text](https://raw.githubusercontent.com/datnguyenzzz/AWSCronJob/develop/Assets/design.png)
+![alt text](https://raw.githubusercontent.com/datnguyenzzz/AWSCronJobScheduler/develop/Assets/design.png)
