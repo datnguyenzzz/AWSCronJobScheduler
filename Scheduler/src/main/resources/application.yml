@@ -9,5 +9,6 @@ verbal:
   isRunning: IS RUNNING !!!
   isFinished: IS FINISHED !!!
   jobCompleted: jobCompleted
+  jobFailed: jobFailed
   healthCheckGroup: healthChecking
   schedulerKey: schedulerKey

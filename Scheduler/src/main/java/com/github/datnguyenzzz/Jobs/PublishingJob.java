@@ -6,7 +6,6 @@ import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.quartz.PersistJobDataAfterExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -38,16 +37,23 @@ public class PublishingJob implements Job {
     }
 
     @Override
-    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+    public void execute(JobExecutionContext jobExecutionContext) {
         //get appropiate publisher
-        JobDetail jobDetail = jobExecutionContext.getJobDetail();
-        String usedService = jobDetail.getDescription();
+        try {
+            JobDetail jobDetail = jobExecutionContext.getJobDetail();
+            String usedService = jobDetail.getDescription();
 
-        String jobName = jobDetail.getKey().toString();
-        
-        // TODO: Trigger AWS publisher
-        AWSPublisher publisher = this.awsPublisherFactory.getObject(usedService);
-        publisher.publish(jobName);
+            String jobName = jobDetail.getKey().toString();
+            
+            // TODO: Trigger AWS publisher
+            AWSPublisher publisher = this.awsPublisherFactory.getObject(usedService);
+            publisher.publish(jobName);
+
+            // update job completed
+        }
+        catch (Exception ex) {
+            // update job failed
+        }
     }
     
 }

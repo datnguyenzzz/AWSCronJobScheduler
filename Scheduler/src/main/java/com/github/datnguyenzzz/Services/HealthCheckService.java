@@ -39,12 +39,12 @@ public class HealthCheckService {
      * @param jobCompleted
      * @param jobStatus
      * 
-     * @apiNote Add health status dto to bean
+     * @apiNote Add health status dto to bean. Map[jobId] = DTO<status>
      */
     public void addToHashMap(int jobId, LocalDateTime time, String jobName, int jobFired, 
-                             int jobMisFired, int jobCompleted, String jobStatus) 
+                             int jobMisFired, int jobCompleted, int jobFailed, String jobStatus) 
     {   
-        HealthStatus healthStatus = new HealthStatus(time, jobName, jobFired, jobMisFired, jobCompleted, jobStatus);
+        HealthStatus healthStatus = new HealthStatus(time, jobName, jobFired, jobMisFired, jobCompleted, jobFailed, jobStatus);
         this.allHealthStatus.put(jobId, healthStatus);
     }
 

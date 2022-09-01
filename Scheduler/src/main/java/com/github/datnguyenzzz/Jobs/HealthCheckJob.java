@@ -37,6 +37,9 @@ public class HealthCheckJob implements Job {
     @Value("${verbal.jobCompleted}")
     private String JOB_COMPLETED;
 
+    @Value("${verbal.jobFailed}")
+    private String JOB_FAILED;
+
     @Value("${verbal.schedulerKey}")
     private String SCHEDULER_KEY;
 
@@ -76,7 +79,8 @@ public class HealthCheckJob implements Job {
                                                         jobKey.toString(), 
                                                         jobDataMap.getInt(JOB_FIRED), 
                                                         jobDataMap.getInt(JOB_MISFIRED), 
-                                                        jobDataMap.getInt(JOB_COMPLETED), 
+                                                        jobDataMap.getInt(JOB_COMPLETED),
+                                                        jobDataMap.getInt(JOB_FAILED), 
                                                         jobDataMap.getString(JOB_STATUS));
                 }
             }

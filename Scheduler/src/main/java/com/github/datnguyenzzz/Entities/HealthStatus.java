@@ -23,14 +23,18 @@ public class HealthStatus {
     private int jobCompleted;
 
     @Getter @Setter
+    private int jobFailed;
+
+    @Getter @Setter
     private String jobStatus;
 
-    public HealthStatus(LocalDateTime time, String jobName, int jobFired, int jobMisFired, int jobCompleted, String jobStatus) {
+    public HealthStatus(LocalDateTime time, String jobName, int jobFired, int jobMisFired, int jobCompleted, int jobFailed, String jobStatus) {
         this.time = time;
         this.jobName = jobName;
         this.jobFired = jobFired;
         this.jobMisfired = jobMisFired;
         this.jobCompleted = jobCompleted;
+        this.jobFailed = jobFailed;
         this.jobStatus = jobStatus;
     }
 

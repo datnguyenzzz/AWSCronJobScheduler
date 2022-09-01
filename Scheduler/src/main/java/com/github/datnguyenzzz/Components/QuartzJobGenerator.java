@@ -49,6 +49,9 @@ public class QuartzJobGenerator {
     @Value("${verbal.jobCompleted}")
     private String JOB_COMPLETED;
 
+    @Value("${verbal.jobFailed}")
+    private String JOB_FAILED;
+
     @Value("${verbal.jobStatus}")
     private String JOB_STATUS;
 
@@ -72,6 +75,7 @@ public class QuartzJobGenerator {
         hMap.put(JOB_FIRED,0);
         hMap.put(JOB_MISFIRED, 0);
         hMap.put(JOB_COMPLETED, 0);
+        hMap.put(JOB_FAILED, 0);
         hMap.put(JOB_STATUS, IS_FINISHED);
         return hMap;
     }
