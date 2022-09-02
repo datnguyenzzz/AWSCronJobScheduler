@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.github.datnguyenzzz.Components.QuartzScheduler;
+import com.github.datnguyenzzz.Components.SchedulerEngine;
 import com.github.datnguyenzzz.Entities.HealthStatus;
 import com.github.datnguyenzzz.Services.HealthCheckService;
 import com.github.datnguyenzzz.Services.QuartzJobGeneratorService;
@@ -42,7 +42,7 @@ public class HealthCheckJob implements Job {
         logger.info("HEALTH CHECKING !!!!!");
 
         JobDataMap dataMap = jobCtx.getJobDetail().getJobDataMap();
-        QuartzScheduler scheduler = (QuartzScheduler) dataMap.get(SCHEDULER_KEY);
+        SchedulerEngine scheduler = (SchedulerEngine) dataMap.get(SCHEDULER_KEY);
 
         try {
             int count=0;

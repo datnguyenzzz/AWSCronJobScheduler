@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import com.github.datnguyenzzz.Components.QuartzScheduler;
+import com.github.datnguyenzzz.Components.SchedulerEngine;
 import com.github.datnguyenzzz.Entities.AWSJob;
 import com.github.datnguyenzzz.Entities.JobListDefinition;
 import com.github.datnguyenzzz.Interfaces.CronJobProvider;
@@ -37,7 +37,7 @@ public class SchedulerExecution {
     private ApplicationContext ctx;
 
     @Autowired
-    private QuartzScheduler scheduler;
+    private SchedulerEngine scheduler;
 
     @Autowired
     private AddJobService addJobHandler;

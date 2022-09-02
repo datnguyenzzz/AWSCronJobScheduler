@@ -23,9 +23,9 @@ import com.github.datnguyenzzz.Factories.PublishingJobFactory;
 /**
  * @implNote Make sure Quartz Scheduler is singleton
  */
-@Component("quartzScheduler")
+@Component
 @Scope("singleton")
-public class QuartzScheduler {
+public class SchedulerEngine {
     
     private Scheduler scheduler;
 

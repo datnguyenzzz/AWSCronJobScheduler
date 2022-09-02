@@ -15,7 +15,7 @@ import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.github.datnguyenzzz.Entities.AWSJob;
 import com.github.datnguyenzzz.Entities.HealthStatus;
@@ -27,7 +27,7 @@ import com.github.datnguyenzzz.Jobs.PublishingJob;
  * @implNote Job generator is singleton
  * @apiNote Handle all relate to job creation
  */
-@Component
+@Service
 @Scope("singleton")
 public class QuartzJobGeneratorService {
 

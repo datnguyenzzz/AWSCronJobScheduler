@@ -7,14 +7,14 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.github.datnguyenzzz.Entities.HealthStatus;
 
 /**
  * Handle everytime health check job finish
  */
-@Component
+@Service
 @Scope("singleton")
 public class HealthCheckService {
 

@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.github.datnguyenzzz.Components.QuartzScheduler;
+import com.github.datnguyenzzz.Components.SchedulerEngine;
 
 /**
  * @apiNote Trigger job sequentially
@@ -33,13 +33,13 @@ public class SequentialExecutionJobListener implements JobListener {
     private String name;
     private List<JobDetail> jobExecuteNext;
 
-    private QuartzScheduler scheduler;
+    private SchedulerEngine scheduler;
 
     public SequentialExecutionJobListener() {
         this.jobExecuteNext = new ArrayList<>();
     }
 
-    public void setScheduler(QuartzScheduler scheduler) {
+    public void setScheduler(SchedulerEngine scheduler) {
         this.scheduler = scheduler;
     }
 
