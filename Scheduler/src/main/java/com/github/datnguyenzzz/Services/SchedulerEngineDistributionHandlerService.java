@@ -9,6 +9,8 @@ import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.impl.matchers.KeyMatcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import com.github.datnguyenzzz.Actions.SequentialExecutionJobListener;
 import com.github.datnguyenzzz.Components.SchedulerEngine;
+import com.github.datnguyenzzz.Entities.HealthStatus;
 
 /**
  * Equally distribute job across Scheduler engines
@@ -32,6 +35,14 @@ public class SchedulerEngineDistributionHandlerService {
     @Autowired
     private SchedulerEngine schedulerEngine;
 
+    @Autowired
+    private HealthCheckService healthCheckService;
+
+    @Autowired
+    private QuartzJobGeneratorService quartzJobGeneratorService;
+
+    private final Logger logger = LoggerFactory.getLogger(SchedulerEngineDistributionHandlerService.class);
+
     private HashMap<JobKey, SchedulerEngine> jobRepository = new HashMap<>();
 
     /**
@@ -41,6 +52,16 @@ public class SchedulerEngineDistributionHandlerService {
         //TODO: current just use a scheduler as singleton
 
         return this.schedulerEngine;
+    }
+
+    /**
+     * 
+     * @param jobKey
+     * @return Scheduler Engine
+     * @apiNote return scheduler engine where job key reside
+     */
+    private SchedulerEngine getSchedulerEngineByJobKey(JobKey jobKey) {
+        return this.jobRepository.get(jobKey);
     }
 
     /**
@@ -68,12 +89,12 @@ public class SchedulerEngineDistributionHandlerService {
         SequentialExecutionJobListener executionJobListener = ctx.getBean(SequentialExecutionJobListener.class);
 
         //get engine where jobExecuteFirst reside
-        SchedulerEngine targetEngine = this.jobRepository.get(jobExecuteFirst);
+        SchedulerEngine targetEngine = this.getSchedulerEngineByJobKey(jobExecuteFirst);
         executionJobListener.setScheduler(targetEngine);
         executionJobListener.setName(jobExecuteFirst.toString() + " bonus");
 
         //get engine where jobExecuteNext reside
-        SchedulerEngine jobNextSchedulerEngine = this.jobRepository.get(jobExecuteNext);
+        SchedulerEngine jobNextSchedulerEngine = this.getSchedulerEngineByJobKey(jobExecuteNext);
         JobDetail awsJobDetailNext = jobNextSchedulerEngine.getJobDetail(jobExecuteNext);
 
         executionJobListener.addToJobExecuteNext(awsJobDetailNext);
@@ -96,13 +117,13 @@ public class SchedulerEngineDistributionHandlerService {
         SequentialExecutionJobListener executionJobListener = ctx.getBean(SequentialExecutionJobListener.class);
 
         //get engine where jobExecuteFirst reside
-        SchedulerEngine targetEngine = this.jobRepository.get(jobExecuteFirst);
+        SchedulerEngine targetEngine = this.getSchedulerEngineByJobKey(jobExecuteFirst);
         executionJobListener.setScheduler(targetEngine);
         executionJobListener.setName(jobExecuteFirst.toString() + " bonus");
 
         //get engine where jobExecuteNext reside
         for (JobKey jobExecuteNext: jobListExecuteNext) {
-            SchedulerEngine jobNextSchedulerEngine = this.jobRepository.get(jobExecuteNext);
+            SchedulerEngine jobNextSchedulerEngine = this.getSchedulerEngineByJobKey(jobExecuteNext);
             JobDetail awsJobDetailNext = jobNextSchedulerEngine.getJobDetail(jobExecuteNext);
             executionJobListener.addToJobExecuteNext(awsJobDetailNext);
         }
@@ -119,7 +140,7 @@ public class SchedulerEngineDistributionHandlerService {
      */
     public void scheduleCurrentJob(JobKey jobKey) throws SchedulerException {
         //get engine where jobKey reside
-        SchedulerEngine schedulerEngine = this.jobRepository.get(jobKey);
+        SchedulerEngine schedulerEngine = this.getSchedulerEngineByJobKey(jobKey);
         JobDetail awsJobDetail = schedulerEngine.getJobDetail(jobKey);
 
         JobDataMap jobDataMap = awsJobDetail.getJobDataMap();
@@ -129,5 +150,48 @@ public class SchedulerEngineDistributionHandlerService {
         if (trigger != null) 
             schedulerEngine.scheduleJob(trigger);
     }
+
+    /**
+     * 
+     * @param jobDetail
+     * @param trigger
+     * @throws SchedulerException
+     * @apiNote use 1 of schedule engines to schedule job 
+     */
+    public void scheduleJob(JobDetail jobDetail, Trigger trigger) throws SchedulerException {
+        //get appropriate scheduler
+        SchedulerEngine schedulerEngine = this.getAppropriateEngine();
+        schedulerEngine.scheduleJob(jobDetail, trigger);
+    }
+
+    /**
+     * @apiNote Aggregate all health status of job which store inside repository
+     */
+    public void aggregateJobsHealthStatus() throws SchedulerException {
+
+        int count = 0;
+        for (JobKey jobKey : this.jobRepository.keySet()) {
+            count++;
+            logger.info("JOB #" + count + ": ");
+            logger.info("\t Name : " + jobKey.toString());
+
+            //find engine where jobKey reside
+            SchedulerEngine schedulerEngine = this.getSchedulerEngineByJobKey(jobKey);
+            JobDataMap jobDataMap = schedulerEngine.getJobDetail(jobKey).getJobDataMap();
+
+            this.quartzJobGeneratorService.setHSJobName(jobDataMap, jobKey.toString());
+            HealthStatus healthStatus = this.quartzJobGeneratorService.getHealthStatusFromDataMap(jobDataMap);
+
+            logger.info("\t Fired: " + healthStatus.getJobFired());
+            logger.info("\t Misfired: " + healthStatus.getJobMisfired());
+            logger.info("\t Completed: " + healthStatus.getJobCompleted());
+            logger.info("\t Failed: " + healthStatus.getJobFailed());
+            logger.info("\t Status: " + healthStatus.getJobStatus());
+
+            // add into health check handler
+            this.healthCheckService.addToHashMap(count, healthStatus);
+        }
+    }
+
 
 }

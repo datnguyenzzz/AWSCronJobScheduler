@@ -25,6 +25,9 @@ public class HealthCheckService {
         this.allHealthStatus = new HashMap<>();
     }
 
+    /**
+     * @apiNote Muttable api
+     */
     public void addToHashMap(int jobId, HealthStatus healthStatus) {
         this.allHealthStatus.put(jobId, healthStatus);
     }

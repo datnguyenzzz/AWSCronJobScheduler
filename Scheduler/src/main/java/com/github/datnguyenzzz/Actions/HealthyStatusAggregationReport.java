@@ -11,14 +11,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.github.datnguyenzzz.Components.CronJobConfiguration;
-import com.github.datnguyenzzz.Components.SchedulerEngine;
 import com.github.datnguyenzzz.Services.QuartzJobGeneratorService;
+import com.github.datnguyenzzz.Services.SchedulerEngineDistributionHandlerService;
 
 @Component
 public class HealthyStatusAggregationReport {
-
-    @Value("${verbal.schedulerKey}")
-    private String SCHEDULER_KEY;
 
     @Value("${verbal.jobTrigger}")
     private String JOB_TRIGGER;
@@ -27,7 +24,7 @@ public class HealthyStatusAggregationReport {
     private CronJobConfiguration config;
 
     @Autowired
-    private SchedulerEngine scheduler;
+    private SchedulerEngineDistributionHandlerService schedulerEngineService;
 
     @Autowired
     private QuartzJobGeneratorService jobGenerator;
@@ -47,10 +44,8 @@ public class HealthyStatusAggregationReport {
 
         JobDataMap dataMap = aggregateJobDetail.getJobDataMap();
 
-        dataMap.put(SCHEDULER_KEY, this.scheduler);
-
         Trigger aggregateJobTrigger = (Trigger) dataMap.get(JOB_TRIGGER);
-        this.scheduler.scheduleJob(aggregateJobDetail, aggregateJobTrigger);
+        this.schedulerEngineService.scheduleJob(aggregateJobDetail, aggregateJobTrigger);
     }
 
 }
