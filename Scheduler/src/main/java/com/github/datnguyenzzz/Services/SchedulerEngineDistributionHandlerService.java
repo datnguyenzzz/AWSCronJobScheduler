@@ -6,8 +6,12 @@ import java.util.List;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
+import org.quartz.JobListener;
+import org.quartz.Matcher;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
+import org.quartz.TriggerKey;
+import org.quartz.TriggerListener;
 import org.quartz.impl.matchers.KeyMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,9 +104,7 @@ public class SchedulerEngineDistributionHandlerService {
         executionJobListener.addToJobExecuteNext(awsJobDetailNext);
 
         //add listener to target Engine
-
-        targetEngine.getListenerManager().addJobListener(executionJobListener, 
-                                                    KeyMatcher.keyEquals(jobExecuteFirst));
+        this.addJobListener(targetEngine, executionJobListener, KeyMatcher.keyEquals(jobExecuteFirst));
     }
 
     /**
@@ -129,8 +131,7 @@ public class SchedulerEngineDistributionHandlerService {
         }
 
         //add listener to target Engine
-        targetEngine.getListenerManager().addJobListener(executionJobListener, 
-                                                    KeyMatcher.keyEquals(jobExecuteFirst));
+        this.addJobListener(targetEngine, executionJobListener, KeyMatcher.keyEquals(jobExecuteFirst));
     }
 
     /**
@@ -193,5 +194,32 @@ public class SchedulerEngineDistributionHandlerService {
         }
     }
 
+    /**
+     * 
+     * @param schedulerEngine
+     * @param listener
+     * @param matcher
+     * 
+     * @apiNote Add trigger listener into scheduler with particular matcher
+     */
+    private void addTriggerListener(SchedulerEngine schedulerEngine, 
+        TriggerListener listener, Matcher<TriggerKey> matcher) throws SchedulerException
+    {
+        schedulerEngine.getListenerManager().addTriggerListener(listener, matcher);
+    }
 
+    /**
+     * 
+     * @param schedulerEngine
+     * @param listener
+     * @param matcher
+     * @throws SchedulerException
+     * 
+     * @apiNote Add job listener into scheduler with particular matcher
+     */
+    private void addJobListener(SchedulerEngine schedulerEngine,
+        JobListener listener, Matcher<JobKey> matcher) throws SchedulerException
+    {
+        schedulerEngine.getListenerManager().addJobListener(listener, matcher);
+    }
 }
