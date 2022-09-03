@@ -7,46 +7,30 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
-import org.quartz.JobKey;
 import org.quartz.SchedulerException;
-import org.quartz.impl.matchers.GroupMatcher;
-import org.quartz.impl.matchers.NotMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import com.github.datnguyenzzz.Components.SchedulerEngine;
 import com.github.datnguyenzzz.Entities.AWSJob;
 import com.github.datnguyenzzz.Entities.JobListDefinition;
 import com.github.datnguyenzzz.Interfaces.CronJobProvider;
 import com.github.datnguyenzzz.Services.AddJobService;
+import com.github.datnguyenzzz.Services.HealthCheckService;
 
 @Component
 public class SchedulerExecution {
-
-    @Value("${verbal.healthCheckGroup}")
-    private String HEALTH_CHECK_GROUP;
-
-    @Value("${verbal.jobTrigger}")
-    private String JOB_TRIGGER;
 
     @Autowired
     private ApplicationContext ctx;
 
     @Autowired
-    private SchedulerEngine scheduler;
+    private HealthCheckService healthCheckService;
 
     @Autowired
     private AddJobService addJobHandler;
-
-    @Autowired
-    private JobHealthyStatusUpdateTriggerListener healthyTriggerListener;
-
-    @Autowired
-    private JobHealthyStatusUpdateJobListener healthyJobListener;
 
     private CronJobProvider provider;
     
@@ -57,8 +41,6 @@ public class SchedulerExecution {
     @PostConstruct
     private void init() {
         provider = ctx.getBean("cronJobProviderFactory", CronJobProvider.class);
-        healthyTriggerListener.setName("Healthy update with trigger");
-        healthyJobListener.setName("Healthy update with job");
     }
 
     /**
@@ -120,8 +102,7 @@ public class SchedulerExecution {
      * @throws SchedulerException
      */
     private void updateHealthyStatus() throws SchedulerException {
-        this.scheduler.getListenerManager().addTriggerListener(healthyTriggerListener, NotMatcher.not(GroupMatcher.triggerGroupEquals(HEALTH_CHECK_GROUP)));
-        this.scheduler.getListenerManager().addJobListener(healthyJobListener, NotMatcher.not(GroupMatcher.jobGroupEquals(HEALTH_CHECK_GROUP)));
+        this.healthCheckService.updateListenerToUpdateHealthStatus();
     }
 
     /**
@@ -162,14 +143,6 @@ public class SchedulerExecution {
         addAfterJobExecutedListener(jobList);
 
         updateHealthyStatus();
-
-        //loggin all job
-        for(String group: this.scheduler.getJobGroupNames()) {
-            for(JobKey jobKey : this.scheduler.getJobKeys(GroupMatcher.groupEquals(group))) {
-                logger.info("Found job identified by: " + jobKey.toString());
-            }
-        }
-
         scheduleJob(jobList);
 
     }

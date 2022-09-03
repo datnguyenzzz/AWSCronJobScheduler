@@ -2,6 +2,7 @@ package com.github.datnguyenzzz.Services;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
@@ -12,6 +13,7 @@ import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.TriggerKey;
 import org.quartz.TriggerListener;
+import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.impl.matchers.KeyMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +49,7 @@ public class SchedulerEngineDistributionHandlerService {
 
     private final Logger logger = LoggerFactory.getLogger(SchedulerEngineDistributionHandlerService.class);
 
+    //TODO: Better using database
     private HashMap<JobKey, SchedulerEngine> jobRepository = new HashMap<>();
 
     /**
@@ -56,6 +59,35 @@ public class SchedulerEngineDistributionHandlerService {
         //TODO: current just use a scheduler as singleton
 
         return this.schedulerEngine;
+    }
+
+    /**
+     * @apiNote Retrieve all schedule engine, where at least contains 1 job
+     * @implNote Better using metadata DB
+     * @return
+     */
+    public List<SchedulerEngine> getAllSchedulerEngines() {
+        List<SchedulerEngine> res = jobRepository.entrySet().stream()
+                                        .map(x -> x.getValue())
+                                        .filter((engine) -> {
+                                            int jobCount = 0;
+
+                                            try {
+                                                for (String group : engine.getJobGroupNames())
+                                                    for (JobKey key: engine.getJobKeys(GroupMatcher.groupEquals(group))) {
+                                                        logger.info(key.toString());
+                                                        jobCount++;
+                                                    }
+                                            }
+                                            catch (Exception ex) {
+                                                return false;
+                                            }
+
+                                            return (jobCount>0);
+                                        })
+                                        .collect(Collectors.toList());
+
+        return res;
     }
 
     /**
@@ -202,7 +234,7 @@ public class SchedulerEngineDistributionHandlerService {
      * 
      * @apiNote Add trigger listener into scheduler with particular matcher
      */
-    private void addTriggerListener(SchedulerEngine schedulerEngine, 
+    public void addTriggerListener(SchedulerEngine schedulerEngine, 
         TriggerListener listener, Matcher<TriggerKey> matcher) throws SchedulerException
     {
         schedulerEngine.getListenerManager().addTriggerListener(listener, matcher);
@@ -217,7 +249,7 @@ public class SchedulerEngineDistributionHandlerService {
      * 
      * @apiNote Add job listener into scheduler with particular matcher
      */
-    private void addJobListener(SchedulerEngine schedulerEngine,
+    public void addJobListener(SchedulerEngine schedulerEngine,
         JobListener listener, Matcher<JobKey> matcher) throws SchedulerException
     {
         schedulerEngine.getListenerManager().addJobListener(listener, matcher);

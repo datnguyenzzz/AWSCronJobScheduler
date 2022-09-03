@@ -2,13 +2,22 @@ package com.github.datnguyenzzz.Services;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.quartz.SchedulerException;
+import org.quartz.impl.matchers.GroupMatcher;
+import org.quartz.impl.matchers.NotMatcher;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import com.github.datnguyenzzz.Actions.JobHealthyStatusUpdateJobListener;
+import com.github.datnguyenzzz.Actions.JobHealthyStatusUpdateTriggerListener;
+import com.github.datnguyenzzz.Components.SchedulerEngine;
 import com.github.datnguyenzzz.Entities.HealthStatus;
 
 /**
@@ -20,9 +29,23 @@ public class HealthCheckService {
 
     private Map<Integer, HealthStatus> allHealthStatus;
 
+    @Autowired
+    private SchedulerEngineDistributionHandlerService schedulerEngineService;
+
+    @Autowired
+    private JobHealthyStatusUpdateTriggerListener healthyTriggerListener;
+
+    @Autowired
+    private JobHealthyStatusUpdateJobListener healthyJobListener;
+
+    @Value("${verbal.healthCheckGroup}")
+    private String HEALTH_CHECK_GROUP;
+
     @PostConstruct
     public void init() {
         this.allHealthStatus = new HashMap<>();
+        healthyTriggerListener.setName("Healthy update with trigger");
+        healthyJobListener.setName("Healthy update with job");
     }
 
     /**
@@ -53,6 +76,23 @@ public class HealthCheckService {
 
     public Map<Integer, HealthStatus> getAllHealthStatus() {
         return this.allHealthStatus;
+    }
+
+    /**
+     * @apiNote Add health status listener into all scheduler engine
+     */
+    public void updateListenerToUpdateHealthStatus() throws SchedulerException {
+        List<SchedulerEngine> allEngines = this.schedulerEngineService.getAllSchedulerEngines();
+
+        for (SchedulerEngine engine: allEngines) {
+            this.schedulerEngineService.addTriggerListener(engine, 
+                    healthyTriggerListener, 
+                    NotMatcher.not(GroupMatcher.triggerGroupEquals(HEALTH_CHECK_GROUP)));
+
+            this.schedulerEngineService.addJobListener(engine,
+                    healthyJobListener, 
+                    NotMatcher.not(GroupMatcher.jobGroupEquals(HEALTH_CHECK_GROUP)));
+        }
     }
 
 }
