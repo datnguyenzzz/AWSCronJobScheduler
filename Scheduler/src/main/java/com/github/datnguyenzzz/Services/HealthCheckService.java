@@ -30,7 +30,7 @@ public class HealthCheckService {
     private Map<Integer, HealthStatus> allHealthStatus;
 
     @Autowired
-    private AddJobService addJobService;
+    private AddJobServiceImpl addJobService;
 
     @Autowired
     private SchedulerEngineDistributionHandlerService schedulerEngineService;

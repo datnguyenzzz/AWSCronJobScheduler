@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.github.datnguyenzzz.Entities.AWSJob;
 import com.github.datnguyenzzz.Entities.HealthStatus;
-import com.github.datnguyenzzz.Services.AddJobService;
+import com.github.datnguyenzzz.Services.AddJobServiceImpl;
 import com.github.datnguyenzzz.Services.HealthCheckService;
 
 @RestController
@@ -25,7 +24,7 @@ public class WebController {
     private HealthCheckService healthCheckHandler;
 
     @Autowired
-    private AddJobService addJobService;
+    private AddJobServiceImpl addJobService;
 
     @GetMapping("/")
     public String index() throws Exception {
@@ -53,7 +52,7 @@ public class WebController {
             return ResponseEntity.status(HttpStatus.ACCEPTED)
                     .body("Add job - " + awsJob.getName() + " successfully");
         }
-        catch (SchedulerException ex) {
+        catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ex.getMessage());
         }

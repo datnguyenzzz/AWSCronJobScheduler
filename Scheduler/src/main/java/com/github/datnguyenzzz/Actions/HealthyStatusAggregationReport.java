@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.github.datnguyenzzz.Components.CronJobConfiguration;
-import com.github.datnguyenzzz.Services.AddJobService;
+import com.github.datnguyenzzz.Services.AddJobServiceImpl;
 import com.github.datnguyenzzz.Services.QuartzJobGeneratorService;
 
 @Component
@@ -21,7 +21,7 @@ public class HealthyStatusAggregationReport {
     private String JOB_TRIGGER;
 
     @Autowired
-    private AddJobService addJobService;
+    private AddJobServiceImpl addJobService;
     
     @Autowired
     private CronJobConfiguration config;

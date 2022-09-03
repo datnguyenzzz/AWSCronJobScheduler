@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import com.github.datnguyenzzz.Entities.AWSJob;
 import com.github.datnguyenzzz.Entities.JobListDefinition;
 import com.github.datnguyenzzz.Interfaces.CronJobProvider;
-import com.github.datnguyenzzz.Services.AddJobService;
+import com.github.datnguyenzzz.Services.AddJobServiceImpl;
 import com.github.datnguyenzzz.Services.HealthCheckService;
 
 @Component
@@ -30,7 +30,7 @@ public class SchedulerExecution {
     private HealthCheckService healthCheckService;
 
     @Autowired
-    private AddJobService addJobHandler;
+    private AddJobServiceImpl addJobHandler;
 
     private CronJobProvider provider;
     
