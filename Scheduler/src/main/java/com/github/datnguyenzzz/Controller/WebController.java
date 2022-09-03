@@ -25,7 +25,7 @@ public class WebController {
     private HealthCheckService healthCheckHandler;
 
     @Autowired
-    private AddJobService addJobHandler;
+    private AddJobService addJobService;
 
     @GetMapping("/")
     public String index() throws Exception {
@@ -43,13 +43,13 @@ public class WebController {
     public ResponseEntity<String> addNewJob(@RequestBody AWSJob awsJob) {
         try {
             //add job to storage
-            this.addJobHandler.addNewJob(awsJob);
+            this.addJobService.addNewJob(awsJob);
             //if sequential is applied
             String jobBeforeName = awsJob.getAfterJobDone();
             if (jobBeforeName != null && !jobBeforeName.equals(""))
-                this.addJobHandler.addSequentialTrigger(jobBeforeName, awsJob);
+                this.addJobService.addSequentialTrigger(jobBeforeName, awsJob);
             //schedule this one
-            this.addJobHandler.scheduleCurrentJob(awsJob);
+            this.addJobService.scheduleCurrentJob(awsJob);
             return ResponseEntity.status(HttpStatus.ACCEPTED)
                     .body("Add job - " + awsJob.getName() + " successfully");
         }

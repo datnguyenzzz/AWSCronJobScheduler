@@ -5,39 +5,25 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
 import org.quartz.JobKey;
-import org.quartz.JobListener;
-import org.quartz.Matcher;
 import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.quartz.TriggerKey;
-import org.quartz.TriggerListener;
 import org.quartz.impl.matchers.GroupMatcher;
-import org.quartz.impl.matchers.KeyMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import com.github.datnguyenzzz.Components.SchedulerEngine;
 import com.github.datnguyenzzz.Entities.HealthStatus;
-import com.github.datnguyenzzz.Listeners.SequentialExecutionJobListener;
 
 /**
  * Equally distribute job across Scheduler engines
  */
 @Service
+@Scope("singleton")
 public class SchedulerEngineDistributionHandlerService {
 
-    @Value("${verbal.jobTrigger}")
-    private String JOB_TRIGGER;
-
-    @Autowired
-    private ApplicationContext ctx;
-    
     @Autowired
     private SchedulerEngine schedulerEngine;
 
@@ -55,7 +41,7 @@ public class SchedulerEngineDistributionHandlerService {
     /**
      * @apiNote Return appropriate schedule engine to handle the job 
      * */ 
-    private SchedulerEngine getAppropriateEngine() {
+    public SchedulerEngine getAppropriateEngine() {
         //TODO: current just use a scheduler as singleton
 
         return this.schedulerEngine;
@@ -100,99 +86,8 @@ public class SchedulerEngineDistributionHandlerService {
         return this.jobRepository.get(jobKey);
     }
 
-    /**
-     * 
-     * @param jobDetail
-     * @apiNote Add job into appropiate schedule
-     */
-    public void addJob(JobDetail jobDetail, boolean isReplace) throws SchedulerException {
-        SchedulerEngine targetEngine = this.getAppropriateEngine();
-        targetEngine.addJob(jobDetail, isReplace);
-
-        // store into repository
-        JobKey jobKey = jobDetail.getKey();
-        jobRepository.put(jobKey, targetEngine);
-    }
-
-    /**
-     * 
-     * @param jobExecuteFirst
-     * @param jobExecuteNext
-     * @throws SchedulerException
-     * @apiNote Add trigger to execute jobExecuteNext after jobExecuteFirst
-     */
-    public void addSequentialTrigger(JobKey jobExecuteFirst, JobKey jobExecuteNext) throws SchedulerException {
-        SequentialExecutionJobListener executionJobListener = ctx.getBean(SequentialExecutionJobListener.class);
-
-        //get engine where jobExecuteFirst reside
-        SchedulerEngine targetEngine = this.getSchedulerEngineByJobKey(jobExecuteFirst);
-        executionJobListener.setName(jobExecuteFirst.toString() + " bonus");
-
-        //get engine where jobExecuteNext reside
-        SchedulerEngine jobNextSchedulerEngine = this.getSchedulerEngineByJobKey(jobExecuteNext);
-        JobDetail awsJobDetailNext = jobNextSchedulerEngine.getJobDetail(jobExecuteNext);
-
-        executionJobListener.addToJobExecuteNext(awsJobDetailNext);
-
-        //add listener to target Engine
-        this.addJobListener(targetEngine, executionJobListener, KeyMatcher.keyEquals(jobExecuteFirst));
-    }
-
-    /**
-     * 
-     * @param jobExecuteFirst
-     * @param jobListExecuteNext
-     * @apiNote add trigger to execute List of jobExecuteNext after jobExecuteFirst
-     */
-    public void addSequentialTrigger(JobKey jobExecuteFirst, List<JobKey> jobListExecuteNext)
-        throws SchedulerException 
-    {
-        SequentialExecutionJobListener executionJobListener = ctx.getBean(SequentialExecutionJobListener.class);
-
-        //get engine where jobExecuteFirst reside
-        SchedulerEngine targetEngine = this.getSchedulerEngineByJobKey(jobExecuteFirst);
-        executionJobListener.setName(jobExecuteFirst.toString() + " bonus");
-
-        //get engine where jobExecuteNext reside
-        for (JobKey jobExecuteNext: jobListExecuteNext) {
-            SchedulerEngine jobNextSchedulerEngine = this.getSchedulerEngineByJobKey(jobExecuteNext);
-            JobDetail awsJobDetailNext = jobNextSchedulerEngine.getJobDetail(jobExecuteNext);
-            executionJobListener.addToJobExecuteNext(awsJobDetailNext);
-        }
-
-        //add listener to target Engine
-        this.addJobListener(targetEngine, executionJobListener, KeyMatcher.keyEquals(jobExecuteFirst));
-    }
-
-    /**
-     * 
-     * @param jobKey
-     * @apiNote schedule job within schedule engine
-     */
-    public void scheduleCurrentJob(JobKey jobKey) throws SchedulerException {
-        //get engine where jobKey reside
-        SchedulerEngine schedulerEngine = this.getSchedulerEngineByJobKey(jobKey);
-        JobDetail awsJobDetail = schedulerEngine.getJobDetail(jobKey);
-
-        JobDataMap jobDataMap = awsJobDetail.getJobDataMap();
-        Trigger trigger = (Trigger) jobDataMap.get(JOB_TRIGGER);
-
-        //Add jobNow to scheduler
-        if (trigger != null) 
-            schedulerEngine.scheduleJob(trigger);
-    }
-
-    /**
-     * 
-     * @param jobDetail
-     * @param trigger
-     * @throws SchedulerException
-     * @apiNote use 1 of schedule engines to schedule job 
-     */
-    public void scheduleJob(JobDetail jobDetail, Trigger trigger) throws SchedulerException {
-        //get appropriate scheduler
-        SchedulerEngine schedulerEngine = this.getAppropriateEngine();
-        schedulerEngine.scheduleJob(jobDetail, trigger);
+    public void addJobKeyIntoRepo(JobKey jobKey, SchedulerEngine engine) {
+        this.jobRepository.put(jobKey, engine);
     }
 
     /**
@@ -224,32 +119,5 @@ public class SchedulerEngineDistributionHandlerService {
         }
     }
 
-    /**
-     * 
-     * @param schedulerEngine
-     * @param listener
-     * @param matcher
-     * 
-     * @apiNote Add trigger listener into scheduler with particular matcher
-     */
-    public void addTriggerListener(SchedulerEngine schedulerEngine, 
-        TriggerListener listener, Matcher<TriggerKey> matcher) throws SchedulerException
-    {
-        schedulerEngine.getListenerManager().addTriggerListener(listener, matcher);
-    }
-
-    /**
-     * 
-     * @param schedulerEngine
-     * @param listener
-     * @param matcher
-     * @throws SchedulerException
-     * 
-     * @apiNote Add job listener into scheduler with particular matcher
-     */
-    public void addJobListener(SchedulerEngine schedulerEngine,
-        JobListener listener, Matcher<JobKey> matcher) throws SchedulerException
-    {
-        schedulerEngine.getListenerManager().addJobListener(listener, matcher);
-    }
+    
 }

@@ -30,6 +30,9 @@ public class HealthCheckService {
     private Map<Integer, HealthStatus> allHealthStatus;
 
     @Autowired
+    private AddJobService addJobService;
+
+    @Autowired
     private SchedulerEngineDistributionHandlerService schedulerEngineService;
 
     @Autowired
@@ -85,11 +88,11 @@ public class HealthCheckService {
         List<SchedulerEngine> allEngines = this.schedulerEngineService.getAllSchedulerEngines();
 
         for (SchedulerEngine engine: allEngines) {
-            this.schedulerEngineService.addTriggerListener(engine, 
+            this.addJobService.addTriggerListener(engine, 
                     healthyTriggerListener, 
                     NotMatcher.not(GroupMatcher.triggerGroupEquals(HEALTH_CHECK_GROUP)));
 
-            this.schedulerEngineService.addJobListener(engine,
+            this.addJobService.addJobListener(engine,
                     healthyJobListener, 
                     NotMatcher.not(GroupMatcher.jobGroupEquals(HEALTH_CHECK_GROUP)));
         }
