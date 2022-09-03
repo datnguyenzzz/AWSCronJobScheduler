@@ -20,11 +20,8 @@ import org.springframework.stereotype.Component;
 import com.github.datnguyenzzz.Exceptions.SystemException;
 import com.github.datnguyenzzz.Factories.PublishingJobFactory;
 
-/**
- * @implNote Make sure Quartz Scheduler is singleton
- */
 @Component
-@Scope("singleton")
+@Scope("prototype")
 public class SchedulerEngine {
     
     private Scheduler scheduler;

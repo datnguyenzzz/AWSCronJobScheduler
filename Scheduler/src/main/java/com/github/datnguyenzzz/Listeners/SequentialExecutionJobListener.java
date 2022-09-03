@@ -1,4 +1,4 @@
-package com.github.datnguyenzzz.Actions;
+package com.github.datnguyenzzz.Listeners;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,11 +12,13 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.github.datnguyenzzz.Components.SchedulerEngine;
+import com.github.datnguyenzzz.Services.SchedulerEngineDistributionHandlerService;
 
 /**
  * @apiNote Trigger job sequentially
@@ -28,19 +30,18 @@ public class SequentialExecutionJobListener implements JobListener {
     @Value("${verbal.triggerPublishGroup}")
     private String PUBLISH_TRIGGER_GROUP;
 
+    @Autowired
+    private SchedulerEngineDistributionHandlerService schedulerEngineService;
+
     private final static Logger logger = LoggerFactory.getLogger(SequentialExecutionJobListener.class);
 
     private String name;
     private List<JobDetail> jobExecuteNext;
 
-    private SchedulerEngine scheduler;
+    //private SchedulerEngine scheduler;
 
     public SequentialExecutionJobListener() {
         this.jobExecuteNext = new ArrayList<>();
-    }
-
-    public void setScheduler(SchedulerEngine scheduler) {
-        this.scheduler = scheduler;
     }
 
     public void addToJobExecuteNext(JobDetail jobDetail) {
@@ -81,7 +82,9 @@ public class SequentialExecutionJobListener implements JobListener {
                                 .forJob(jobDetail)
                                 .build();
             try {
-                this.scheduler.scheduleJob(trigger);
+                // get engine where job reside
+                SchedulerEngine engine = this.schedulerEngineService.getSchedulerEngineByJobKey(jobDetail.getKey());
+                engine.scheduleJob(trigger);
             }
             catch (SchedulerException ex) {
                 logger.info("Can not execute " + jobDetail.getKey().toString());

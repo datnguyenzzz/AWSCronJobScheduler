@@ -22,9 +22,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import com.github.datnguyenzzz.Actions.SequentialExecutionJobListener;
 import com.github.datnguyenzzz.Components.SchedulerEngine;
 import com.github.datnguyenzzz.Entities.HealthStatus;
+import com.github.datnguyenzzz.Listeners.SequentialExecutionJobListener;
 
 /**
  * Equally distribute job across Scheduler engines
@@ -96,7 +96,7 @@ public class SchedulerEngineDistributionHandlerService {
      * @return Scheduler Engine
      * @apiNote return scheduler engine where job key reside
      */
-    private SchedulerEngine getSchedulerEngineByJobKey(JobKey jobKey) {
+    public SchedulerEngine getSchedulerEngineByJobKey(JobKey jobKey) {
         return this.jobRepository.get(jobKey);
     }
 
@@ -126,7 +126,6 @@ public class SchedulerEngineDistributionHandlerService {
 
         //get engine where jobExecuteFirst reside
         SchedulerEngine targetEngine = this.getSchedulerEngineByJobKey(jobExecuteFirst);
-        executionJobListener.setScheduler(targetEngine);
         executionJobListener.setName(jobExecuteFirst.toString() + " bonus");
 
         //get engine where jobExecuteNext reside
@@ -152,7 +151,6 @@ public class SchedulerEngineDistributionHandlerService {
 
         //get engine where jobExecuteFirst reside
         SchedulerEngine targetEngine = this.getSchedulerEngineByJobKey(jobExecuteFirst);
-        executionJobListener.setScheduler(targetEngine);
         executionJobListener.setName(jobExecuteFirst.toString() + " bonus");
 
         //get engine where jobExecuteNext reside

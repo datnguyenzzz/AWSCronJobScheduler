@@ -15,10 +15,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import com.github.datnguyenzzz.Actions.JobHealthyStatusUpdateJobListener;
-import com.github.datnguyenzzz.Actions.JobHealthyStatusUpdateTriggerListener;
 import com.github.datnguyenzzz.Components.SchedulerEngine;
 import com.github.datnguyenzzz.Entities.HealthStatus;
+import com.github.datnguyenzzz.Listeners.JobHealthyStatusUpdateJobListener;
+import com.github.datnguyenzzz.Listeners.JobHealthyStatusUpdateTriggerListener;
 
 /**
  * Handle everytime health check job finish
