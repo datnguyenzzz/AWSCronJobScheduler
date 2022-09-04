@@ -1,6 +1,5 @@
 package com.github.datnguyenzzz.Jobs;
 
-import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.PersistJobDataAfterExecution;
@@ -13,7 +12,7 @@ import com.github.datnguyenzzz.Services.SchedulerEngineDistributionHandlerServic
 
 @Component
 @PersistJobDataAfterExecution
-public class HealthCheckJob implements Job {
+public class HealthCheckJob implements CronJob {
     
     @Autowired
     private SchedulerEngineDistributionHandlerService schedulerEngineService;

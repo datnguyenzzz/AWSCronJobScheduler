@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.github.datnguyenzzz.Exceptions.SystemException;
-import com.github.datnguyenzzz.Factories.PublishingJobFactory;
+import com.github.datnguyenzzz.Factories.CronJobFactory;
 
 @Component
 @Scope("prototype")
@@ -27,7 +27,7 @@ public class SchedulerEngine {
     private Scheduler scheduler;
 
     @Autowired
-    private PublishingJobFactory publishingJobFactory;
+    private CronJobFactory cronJobFactory;
 
     @PostConstruct
     public void init() {
@@ -36,7 +36,7 @@ public class SchedulerEngine {
 
             //need job factory, in order to instance job bean
             //because I pass job as bean
-            this.scheduler.setJobFactory(this.publishingJobFactory);
+            this.scheduler.setJobFactory(this.cronJobFactory);
             
             this.scheduler.start();
         } catch (Exception ex) {

@@ -3,7 +3,6 @@ package com.github.datnguyenzzz.Jobs;
 import javax.annotation.PostConstruct;
 
 import org.quartz.DisallowConcurrentExecution;
-import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
@@ -26,7 +25,7 @@ import com.github.datnguyenzzz.Services.QuartzJobGeneratorService;
 @Component
 @PersistJobDataAfterExecution
 @DisallowConcurrentExecution
-public class PublishingJob implements Job {
+public class PublishingJob implements CronJob {
 
     @Autowired
     private ApplicationContext ctx;
