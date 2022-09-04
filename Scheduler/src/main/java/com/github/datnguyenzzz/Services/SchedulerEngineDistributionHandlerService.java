@@ -118,6 +118,5 @@ public class SchedulerEngineDistributionHandlerService {
             this.healthCheckService.addToHashMap(count, healthStatus);
         }
     }
-
     
 }

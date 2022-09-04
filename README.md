@@ -6,6 +6,7 @@ Automatically arrange based on specific predefined firing schedules and periodic
 
 - Sent an event to AWS SQS 
 - Sent an event to AWS Kinesis
+- Schedule a job by loading and reloading class during runtime
 
 ## Required enviroment variables 
 
