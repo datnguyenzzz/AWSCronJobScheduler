@@ -13,7 +13,7 @@ jobList:
   - name: "Upload to SQS #2"
     usedService: "SQS"
     afterJobDone: "Upload to SQS #1"
-    lambdaActionFile: "abc/def/xyz.java"
+    actionFile: "abc/def/xyz.java"
   
   - name: "Upload to Kinesis # 4"
     usedService: "Kinesis"
@@ -26,4 +26,9 @@ jobList:
   - name: "Upload to Kinesis #3"
     cronTrigger: "0/5 * * * * ?"
     usedService: "Kinesis"
-    lambdaActionFile: "xyz/ghi/dfc.java"
+    actionFile: "xyz/ghi/dfc.java"
+
+  - name: "Custom job #6"
+    cronTrigger: "0/2 * * * * ?"
+    usedService: "Custom"
+    actionFile: "./CronJobActionFiles/CustomJob.java"

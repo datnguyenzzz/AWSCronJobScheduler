@@ -167,8 +167,8 @@ public class QuartzJobGeneratorService {
         Map<String, Object> hMap = genDefaultDataMapContent();
         hMap.put(JOB_TRIGGER, trigger);
 
-        if (awsJob.getLambdaActionFile() != null) 
-            hMap.put(ACTION_FILE, awsJob.getLambdaActionFile());
+        if (awsJob.getActionFile() != null) 
+            hMap.put(ACTION_FILE, awsJob.getActionFile());
 
         if (awsJob.getMessages() != null) {
             for (Message mes: awsJob.getMessages()) 

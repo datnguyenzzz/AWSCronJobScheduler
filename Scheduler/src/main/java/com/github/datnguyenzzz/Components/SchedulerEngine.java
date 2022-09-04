@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.github.datnguyenzzz.Exceptions.SystemException;
-import com.github.datnguyenzzz.Factories.CronJobFactory;
+import com.github.datnguyenzzz.Factories.QuartzCronJobFactory;
 
 @Component
 @Scope("prototype")
@@ -27,7 +27,7 @@ public class SchedulerEngine {
     private Scheduler scheduler;
 
     @Autowired
-    private CronJobFactory cronJobFactory;
+    private QuartzCronJobFactory cronJobFactory;
 
     @PostConstruct
     public void init() {

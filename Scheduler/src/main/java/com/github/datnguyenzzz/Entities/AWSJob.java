@@ -23,7 +23,7 @@ public class AWSJob extends Object {
     private String afterJobDone;
 
     @Getter @Setter
-    private String lambdaActionFile;
+    private String actionFile;
 
     @Override
     public String toString() {
@@ -33,7 +33,7 @@ public class AWSJob extends Object {
         sb.append("\tcronTrigger : " + this.cronTrigger + "\n");
         sb.append("\tusedService : " + this.usedService + "\n");
         sb.append("\tafterJobDone : " + this.afterJobDone + "\n");
-        sb.append("\tlambdaActionFile : " + this.lambdaActionFile + "\n");
+        sb.append("\tactionFile : " + this.actionFile + "\n");
         if (messages != null) {
             sb.append("\tmessages: " + "\n");
             for (Message mes: messages) 

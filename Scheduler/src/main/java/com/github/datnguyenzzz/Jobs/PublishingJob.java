@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import com.github.datnguyenzzz.Factories.AWSPublisherFactory;
-import com.github.datnguyenzzz.Interfaces.AWSPublisher;
+import com.github.datnguyenzzz.Factories.JobExecuterFactory;
+import com.github.datnguyenzzz.Interfaces.JobExecuter;
 import com.github.datnguyenzzz.Services.QuartzJobGeneratorService;
 
 /**
@@ -33,11 +33,11 @@ public class PublishingJob implements CronJob {
     @Autowired
     private QuartzJobGeneratorService quartzJobGeneratorService;
 
-    private AWSPublisherFactory awsPublisherFactory;
+    private JobExecuterFactory jobExecuterFactory;
 
     @PostConstruct
     public void init() {
-        this.awsPublisherFactory = ctx.getBean("awsPublisherFactory", AWSPublisherFactory.class);
+        this.jobExecuterFactory = (JobExecuterFactory) ctx.getBean(JobExecuterFactory.class);
     }
 
     @Override
@@ -47,12 +47,10 @@ public class PublishingJob implements CronJob {
             JobDetail jobDetail = jobExecutionContext.getJobDetail();
             String usedService = jobDetail.getDescription();
 
-            String jobName = jobDetail.getKey().toString();
             JobDataMap dataMap = jobExecutionContext.getJobDetail().getJobDataMap();
-            
             // TODO: Trigger AWS publisher
-            AWSPublisher publisher = this.awsPublisherFactory.getObject(usedService);
-            publisher.publish(jobName);
+            JobExecuter publisher = this.jobExecuterFactory.getObject(usedService);
+            publisher.execute(jobDetail);
 
             // update job completed
             this.quartzJobGeneratorService.addHSJobComplete(dataMap);

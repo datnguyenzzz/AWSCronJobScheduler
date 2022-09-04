@@ -11,7 +11,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CronJobFactory implements JobFactory {
+public class QuartzCronJobFactory implements JobFactory {
 
     @Autowired
     private ApplicationContext ctx;

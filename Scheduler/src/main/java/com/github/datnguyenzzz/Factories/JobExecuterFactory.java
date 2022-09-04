@@ -5,7 +5,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.github.datnguyenzzz.Interfaces.AWSPublisher;
+import com.github.datnguyenzzz.Interfaces.JobExecuter;
 
 /** 
  * @implSpec Currently have bean:
@@ -15,11 +15,11 @@ import com.github.datnguyenzzz.Interfaces.AWSPublisher;
  * 
  * implement interface AWSPublisher
 */
-@Component("awsPublisherFactory")
-@Scope("prototype")
-public class AWSPublisherFactory{
+@Component()
+@Scope("singleton")
+public class JobExecuterFactory{
 
-    private final String PUBLISHER = "Publisher";
+    private final String PUBLISHER = "Executer";
     private final String AWS = "aws";
     
     @Autowired
@@ -30,8 +30,8 @@ public class AWSPublisherFactory{
      * @param usedService
      * @return Bean correctsponding to used AWS service
      */
-    public AWSPublisher getObject(String usedService) {
-        AWSPublisher targetBean = ctx.getBean(getTargetBeanName(usedService), AWSPublisher.class);
+    public JobExecuter getObject(String usedService) {
+        JobExecuter targetBean = ctx.getBean(getTargetBeanName(usedService), JobExecuter.class);
         return targetBean;
     }
 
