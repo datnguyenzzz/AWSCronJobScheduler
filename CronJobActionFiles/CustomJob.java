@@ -1,5 +1,8 @@
+import java.util.*;
+import java.lang.*;
+
 public class CustomJob {
-    public void execute() {
+    public static void execute() {
         System.out.println("This is custom job !!!");
     }
 }

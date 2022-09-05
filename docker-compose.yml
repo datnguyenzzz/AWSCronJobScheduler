@@ -10,6 +10,7 @@ services:
     volumes:
       - ./Scheduler/target/Scheduler-1.0-SNAPSHOT.jar:/AWSCronJob/scheduler.jar
       - ./CronJobDefinition/definition.yaml:/AWSCronJob/definition.yaml
+      - ./CronJobActionFiles:/AWSCronJob/CustomJobs
     environment:
       CRON_JOB_PROVIDER: "local"
       CRON_JOB_LOCATION: "/AWSCronJob/definition.yaml"

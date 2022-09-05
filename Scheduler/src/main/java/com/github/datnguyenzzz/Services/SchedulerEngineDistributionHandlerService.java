@@ -22,6 +22,7 @@ import com.github.datnguyenzzz.Entities.HealthStatus;
  */
 @Service
 @Scope("singleton")
+@SuppressWarnings("unused")
 public class SchedulerEngineDistributionHandlerService {
 
     @Autowired
@@ -61,7 +62,7 @@ public class SchedulerEngineDistributionHandlerService {
                                             try {
                                                 for (String group : engine.getJobGroupNames())
                                                     for (JobKey key: engine.getJobKeys(GroupMatcher.groupEquals(group))) {
-                                                        logger.info(key.toString());
+                                                        //logger.info(key.toString());
                                                         jobCount++;
                                                     }
                                             }
