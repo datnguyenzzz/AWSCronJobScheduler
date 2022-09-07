@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
@@ -46,10 +45,10 @@ public class AWSCustomExecuter implements JobExecuter {
     /**
      * 
      * @param filePath
-     * @return File within classpath with content
+     * @return Copy File outside classpath with content into tar classpath
      */
     private File loadOutSideResource(String filePath) {
-        Resource resource = resourceLoader.getResource(filePath);
+        Resource resource = resourceLoader.getResource(this.composeTargetFilePath(filePath));
 
         try {
             InputStream inputStream = resource.getInputStream();
@@ -89,8 +88,13 @@ public class AWSCustomExecuter implements JobExecuter {
         }
     }
     
-
-    private void loadAndExecuteAtRuntime(File targetFile) {
+    /**
+     * 
+     * @param targetFile
+     * @return
+     * @apiNote Load external class at run time to get .class byte code 
+     */
+    private CompilationTask compileCustomClassAtRuntime(File targetFile) {
         // compilation requirements
         DiagnosticCollector<JavaFileObject> diagnosticListener = new DiagnosticCollector<>();
         JavaCompiler complier = ToolProvider.getSystemJavaCompiler();
@@ -115,20 +119,30 @@ public class AWSCustomExecuter implements JobExecuter {
                 null, 
                 unit);
             
-            // Load and execute function
-            if (task.call()) {
-                logger.info("Class is okay !!!");
-            } else {
-                for (Diagnostic<? extends JavaFileObject> diagnostic : diagnosticListener.getDiagnostics()) {
-                    logger.info("Error on " + 
-                        diagnostic.getLineNumber() + " - " + diagnostic.getColumnNumber()
-                        + " \n With message : \n"
-                        + diagnostic.getMessage(null));
-                }
-            }
+            return task;
         }
         catch (Exception ex) {
             logger.info(ex.getMessage());
+            return null;
+        }
+    }
+
+    private String composeTargetFilePath(String filePath) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("file:");
+        sb.append(filePath);
+        return sb.toString();
+    }
+
+    /**
+     * @apiNote load and execute Compilation task
+     */
+    private void loadAndExecuteClassAtRuntime(CompilationTask task) {
+        if (task.call()) {
+            logger.info("TASK IS FINE !!!");
+        }
+        else {
+            logger.info("TASK is failed when loading");
         }
     }
 
@@ -140,13 +154,15 @@ public class AWSCustomExecuter implements JobExecuter {
 
         JobDataMap dataMap = jobDetail.getJobDataMap();
         String actionFilePath = dataMap.getString(ACTION_FILE);
-        actionFilePath = "file:" + actionFilePath;
+        //actionFilePath = this.composeTargetFilePath(actionFilePath);
         
         //TODO: Access file outside classpath
         File targetFile = this.loadOutSideResource(actionFilePath);
         //TODO: Compile java to class byte code
-        this.loadAndExecuteAtRuntime(targetFile);
+        CompilationTask task = this.compileCustomClassAtRuntime(targetFile);
         //TODO: Load class byte code 
+        this.loadAndExecuteClassAtRuntime(task);
+
     }
 
 }
