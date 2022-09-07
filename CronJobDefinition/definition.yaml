@@ -31,4 +31,4 @@ jobList:
   - name: "Custom job #6"
     cronTrigger: "0/2 * * * * ?"
     usedService: "Custom"
-    actionFile: "/AWSCronJob/CustomJobs/CustomJob.java"
+    actionFile: "/AWSCronJob/CustomJobs/CustomJobImpl.java"

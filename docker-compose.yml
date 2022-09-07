@@ -9,6 +9,7 @@ services:
       - 8080:8080
     volumes:
       - ./Scheduler/target/Scheduler-1.0-SNAPSHOT.jar:/AWSCronJob/scheduler.jar
+      - ./Scheduler/target/classes:/classes
       - ./CronJobDefinition/definition.yaml:/AWSCronJob/definition.yaml
       - ./CronJobActionFiles:/AWSCronJob/CustomJobs
     environment:

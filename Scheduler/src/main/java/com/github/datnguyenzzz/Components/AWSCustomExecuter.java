@@ -4,11 +4,15 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.Writer;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.annotation.PostConstruct;
+import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
@@ -27,6 +31,7 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 
+import com.github.datnguyenzzz.Interfaces.CustomJob;
 import com.github.datnguyenzzz.Interfaces.JobExecuter;
 
 @Component("awsCustomExecuter")
@@ -38,8 +43,23 @@ public class AWSCustomExecuter implements JobExecuter {
     @Autowired
     private ResourceLoader resourceLoader;
 
+    private DiagnosticCollector<JavaFileObject> diagnosticListener;
+
     @PostConstruct
     public void init() {
+    }
+
+    private String createNewDirectory(String filePath) {
+        return "ExternalJobs" + filePath;
+    }
+
+    private String getClassName(String filePath) {
+        String fullPath = createNewDirectory(filePath);
+        //logger.info(fullPath);
+        String name = fullPath.split("\\.")[0];
+        name = name.replace('/', '.');
+        name = name + ".class";
+        return name;
     }
 
     /**
@@ -59,7 +79,7 @@ public class AWSCustomExecuter implements JobExecuter {
             //logger.info("File content is: \n");
             //logger.info(data);
 
-            File targetFile = new File("Jobs/" + filePath);
+            File targetFile = new File(this.createNewDirectory(filePath));
 
             if (!targetFile.getParentFile().exists())
                 targetFile.getParentFile().mkdirs();
@@ -96,13 +116,16 @@ public class AWSCustomExecuter implements JobExecuter {
      */
     private CompilationTask compileCustomClassAtRuntime(File targetFile) {
         // compilation requirements
-        DiagnosticCollector<JavaFileObject> diagnosticListener = new DiagnosticCollector<>();
+        this.diagnosticListener = new DiagnosticCollector<>();
         JavaCompiler complier = ToolProvider.getSystemJavaCompiler();
-        StandardJavaFileManager fileManager = complier.getStandardFileManager(diagnosticListener, null, null);
+        StandardJavaFileManager fileManager = complier.getStandardFileManager(
+            this.diagnosticListener, null, null
+        );
 
         // add classpath if needed. 
         List<String> optionList = new ArrayList<>();
-
+        optionList.add("-classpath");
+        optionList.add(System.getProperty("java.class.path") + File.pathSeparator + "/classes");
         // compose task
         try {
             List<File> fileList = new ArrayList<>();
@@ -114,7 +137,7 @@ public class AWSCustomExecuter implements JobExecuter {
             CompilationTask task = complier.getTask(
                 null, 
                 fileManager, 
-                diagnosticListener, 
+                this.diagnosticListener, 
                 optionList, 
                 null, 
                 unit);
@@ -137,12 +160,52 @@ public class AWSCustomExecuter implements JobExecuter {
     /**
      * @apiNote load and execute Compilation task
      */
-    private void loadAndExecuteClassAtRuntime(CompilationTask task) {
+    private void loadAndExecuteClassAtRuntime(CompilationTask task, String filePath) {
         if (task.call()) {
             logger.info("TASK IS FINE !!!");
+
+            URLClassLoader classLoader = null;
+            try {
+                // class loader point to top of structure
+                classLoader = new URLClassLoader(
+                    new URL[] {new File("./").toURI().toURL()}
+                );
+
+                // load class
+                String className = this.getClassName(filePath);
+                logger.info("Class name = " + className);
+                Class<?> loadedClass = classLoader.loadClass(className);
+
+                Object obj = loadedClass.getDeclaredConstructor().newInstance();
+                if (obj instanceof CustomJob) {
+                    // execute job
+                    CustomJob customJob = (CustomJob) obj;
+                    customJob.execute();
+                }
+                else {
+                    logger.info("OBJ isn't implemented CustomJob.class");
+                }
+            }
+
+            catch (Exception ex) {
+                logger.info(ex.getMessage());
+            }
+
+            finally {
+                try {
+                    classLoader.close();
+                }
+                catch (Exception ex) {
+                    logger.info(ex.getMessage());
+                }
+            }
         }
         else {
-            logger.info("TASK is failed when loading");
+            for (Diagnostic<? extends JavaFileObject> diagnostic: this.diagnosticListener.getDiagnostics()) {
+                logger.info("Error at " + diagnostic.getLineNumber() 
+                        + " : " + diagnostic.getColumnNumber()
+                        + " - Message: " + diagnostic.getMessage(Locale.ENGLISH));
+            }            
         }
     }
 
@@ -161,8 +224,7 @@ public class AWSCustomExecuter implements JobExecuter {
         //TODO: Compile java to class byte code
         CompilationTask task = this.compileCustomClassAtRuntime(targetFile);
         //TODO: Load class byte code 
-        this.loadAndExecuteClassAtRuntime(task);
-
+        this.loadAndExecuteClassAtRuntime(task, actionFilePath);
     }
 
 }
