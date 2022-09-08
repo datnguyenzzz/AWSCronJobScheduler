@@ -41,6 +41,7 @@ public class AWSCustomExecuter implements JobExecuter {
     private String ACTION_FILE;
 
     private final String DIR_CLASSES = "/";
+    private final String EXECUTE_METHOD = "execute";
 
     @Autowired
     private ResourceLoader resourceLoader;
@@ -233,7 +234,7 @@ public class AWSCustomExecuter implements JobExecuter {
             Class<?> loadedClass = classLoader.loadClass(className);
             logger.info("Finish loading !!!!");
 
-            Method method = loadedClass.getMethod("execute");
+            Method method = loadedClass.getMethod(EXECUTE_METHOD);
             //logger.info("METHOD = " + method.toString());
             //invoke method
             method.invoke(loadedClass.getDeclaredConstructor().newInstance());
