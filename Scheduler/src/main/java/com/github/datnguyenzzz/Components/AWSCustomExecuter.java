@@ -49,18 +49,72 @@ public class AWSCustomExecuter implements JobExecuter {
     public void init() {
     }
 
-    private String createNewDirectory(String filePath) {
-        return "ExternalJobs" + filePath;
+    /**
+     * 
+     * @param filePath 
+     * @param data java code inside
+     * @apiNote prepare file with hierarchy like /<package1>/<package2>/../name.java 
+     * @return file path
+     */
+    private String createNewDirectory(String filePath, String data) {
+        //first line
+        String customJobPackage = data.split("\n")[0];
+        // remove word "package"
+        customJobPackage = customJobPackage.split(" ")[1];
+
+        // split by "."
+        String[] dirs = customJobPackage.split("\\.");
+
+        StringBuilder newDir = new StringBuilder();
+
+        for (int i=0; i<dirs.length; i++) {
+            String dir = dirs[i];
+            if (i == dirs.length-1) {
+                //remove ';' at last
+                dir = dir.replaceAll("[\\W]+", "");
+            }
+            //logger.info("package = " + dir);
+            newDir.append(dir);
+            newDir.append("/");
+        }
+
+        //get java file name
+        String[] filePathSplitted = filePath.split("/");
+        String javaFileName = filePathSplitted[filePathSplitted.length - 1];
+        newDir.append(javaFileName);
+
+        logger.info("New directory for file is : " + newDir.toString());
+        
+        return newDir.toString();
     }
 
+    /**
+     * 
+     * @param filePath
+     * @return
+     * @apiNote change "a/b/c/d.java" to "a.b.c.d"
+     */
     private String getClassName(String filePath) {
-        String fullPath = createNewDirectory(filePath);
-        //logger.info(fullPath);
-        String name = fullPath.split("\\.")[0];
+        //remove ".java"
+        String name = filePath.split("\\.")[0];
+        //change "/" to "."
         name = name.replace('/', '.');
-        name = name + ".class";
+        //name = name + ".class";
         return name;
     }
+
+    /**
+     * 
+     * @param filePath
+     * @return "file:<filePath>"
+     */
+    private String composeTargetFilePath(String filePath) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("file:");
+        sb.append(filePath);
+        return sb.toString();
+    }
+
 
     /**
      * 
@@ -79,7 +133,7 @@ public class AWSCustomExecuter implements JobExecuter {
             //logger.info("File content is: \n");
             //logger.info(data);
 
-            File targetFile = new File(this.createNewDirectory(filePath));
+            File targetFile = new File(this.createNewDirectory(filePath, data));
 
             if (!targetFile.getParentFile().exists())
                 targetFile.getParentFile().mkdirs();
@@ -125,6 +179,7 @@ public class AWSCustomExecuter implements JobExecuter {
         // add classpath if needed. 
         List<String> optionList = new ArrayList<>();
         optionList.add("-classpath");
+        //all class reside in /classes
         optionList.add(System.getProperty("java.class.path") + File.pathSeparator + "/classes");
         // compose task
         try {
@@ -150,13 +205,7 @@ public class AWSCustomExecuter implements JobExecuter {
         }
     }
 
-    private String composeTargetFilePath(String filePath) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("file:");
-        sb.append(filePath);
-        return sb.toString();
-    }
-
+    
     /**
      * @apiNote load and execute Compilation task
      */
@@ -175,6 +224,7 @@ public class AWSCustomExecuter implements JobExecuter {
                 String className = this.getClassName(filePath);
                 logger.info("Class name = " + className);
                 Class<?> loadedClass = classLoader.loadClass(className);
+                logger.info("Finish loading !!!!");
 
                 Object obj = loadedClass.getDeclaredConstructor().newInstance();
                 if (obj instanceof CustomJob) {
@@ -192,6 +242,7 @@ public class AWSCustomExecuter implements JobExecuter {
             }
 
             finally {
+                //close loader
                 try {
                     classLoader.close();
                 }
@@ -224,7 +275,7 @@ public class AWSCustomExecuter implements JobExecuter {
         //TODO: Compile java to class byte code
         CompilationTask task = this.compileCustomClassAtRuntime(targetFile);
         //TODO: Load class byte code 
-        this.loadAndExecuteClassAtRuntime(task, actionFilePath);
+        this.loadAndExecuteClassAtRuntime(task, targetFile.getPath());
     }
 
 }
