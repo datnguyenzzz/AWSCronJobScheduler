@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.Writer;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
@@ -31,7 +32,6 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 
-import com.github.datnguyenzzz.Interfaces.CustomJob;
 import com.github.datnguyenzzz.Interfaces.JobExecuter;
 
 @Component("awsCustomExecuter")
@@ -40,8 +40,7 @@ public class AWSCustomExecuter implements JobExecuter {
     @Value("${verbal.lambdaActionFile}")
     private String ACTION_FILE;
 
-    private final String DIR_CLASSES = "/classes";
-    private final String DIR_JARS = "/AWSCronJob/scheduler.jar";
+    private final String DIR_CLASSES = "/";
 
     @Autowired
     private ResourceLoader resourceLoader;
@@ -182,8 +181,7 @@ public class AWSCustomExecuter implements JobExecuter {
         optionList.add("-classpath");
         //all class reside in /classes
         optionList.add(System.getProperty("java.class.path") 
-            + File.pathSeparator + DIR_CLASSES
-            + File.pathSeparator + DIR_JARS);
+            + File.pathSeparator + DIR_CLASSES);
         // compose task
         try {
             List<File> fileList = new ArrayList<>();
@@ -235,15 +233,14 @@ public class AWSCustomExecuter implements JobExecuter {
             Class<?> loadedClass = classLoader.loadClass(className);
             logger.info("Finish loading !!!!");
 
-            Object obj = loadedClass.getDeclaredConstructor().newInstance();
-            if (obj instanceof CustomJob) {
-                // execute job
-                CustomJob customJob = (CustomJob) obj;
-                customJob.execute();
-            }
-            else {
-                logger.info("OBJ isn't implemented CustomJob.class");
-            }
+            Method method = loadedClass.getMethod("execute");
+            //logger.info("METHOD = " + method.toString());
+            //invoke method
+            method.invoke(loadedClass.getDeclaredConstructor().newInstance());
+
+            //Object obj = loadedClass.getDeclaredConstructor().newInstance();
+            //CustomJob customJob = (CustomJob) obj;
+            //customJob.execute();
         }
 
         catch (Exception ex) {
