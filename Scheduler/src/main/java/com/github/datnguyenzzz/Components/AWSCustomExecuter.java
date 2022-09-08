@@ -40,10 +40,11 @@ public class AWSCustomExecuter implements JobExecuter {
     @Value("${verbal.lambdaActionFile}")
     private String ACTION_FILE;
 
+    private final String DIR_CLASSES = "/classes";
+    private final String DIR_JARS = "/AWSCronJob/scheduler.jar";
+
     @Autowired
     private ResourceLoader resourceLoader;
-
-    private DiagnosticCollector<JavaFileObject> diagnosticListener;
 
     @PostConstruct
     public void init() {
@@ -168,19 +169,21 @@ public class AWSCustomExecuter implements JobExecuter {
      * @return
      * @apiNote Load external class at run time to get .class byte code 
      */
-    private CompilationTask compileCustomClassAtRuntime(File targetFile) {
+    private void compileCustomClassAtRuntime(File targetFile) {
         // compilation requirements
-        this.diagnosticListener = new DiagnosticCollector<>();
+        DiagnosticCollector<JavaFileObject> diagnosticListener = new DiagnosticCollector<>();
         JavaCompiler complier = ToolProvider.getSystemJavaCompiler();
         StandardJavaFileManager fileManager = complier.getStandardFileManager(
-            this.diagnosticListener, null, null
+            diagnosticListener, null, null
         );
 
         // add classpath if needed. 
         List<String> optionList = new ArrayList<>();
         optionList.add("-classpath");
         //all class reside in /classes
-        optionList.add(System.getProperty("java.class.path") + File.pathSeparator + "/classes");
+        optionList.add(System.getProperty("java.class.path") 
+            + File.pathSeparator + DIR_CLASSES
+            + File.pathSeparator + DIR_JARS);
         // compose task
         try {
             List<File> fileList = new ArrayList<>();
@@ -192,16 +195,24 @@ public class AWSCustomExecuter implements JobExecuter {
             CompilationTask task = complier.getTask(
                 null, 
                 fileManager, 
-                this.diagnosticListener, 
+                diagnosticListener, 
                 optionList, 
                 null, 
                 unit);
             
-            return task;
+            if (task.call()) {
+                logger.info("Compile CLASS successfully !!!");
+            }
+            else {
+                for (Diagnostic<? extends JavaFileObject> diagnostic: diagnosticListener.getDiagnostics()) {
+                    logger.info("Error at " + diagnostic.getLineNumber() 
+                                + " : " + diagnostic.getColumnNumber()
+                                + " - Message: " + diagnostic.getMessage(Locale.ENGLISH));
+                }            
+            }
         }
         catch (Exception ex) {
             logger.info(ex.getMessage());
-            return null;
         }
     }
 
@@ -209,54 +220,44 @@ public class AWSCustomExecuter implements JobExecuter {
     /**
      * @apiNote load and execute Compilation task
      */
-    private void loadAndExecuteClassAtRuntime(CompilationTask task, String filePath) {
-        if (task.call()) {
-            logger.info("TASK IS FINE !!!");
+    private void loadAndExecuteClassAtRuntime(String filePath) {
 
-            URLClassLoader classLoader = null;
-            try {
-                // class loader point to top of structure
-                classLoader = new URLClassLoader(
-                    new URL[] {new File("./").toURI().toURL()}
-                );
+        URLClassLoader classLoader = null;
+        try {
+            // class loader point to top of structure
+            classLoader = new URLClassLoader(
+                new URL[] {new File("./").toURI().toURL()}
+            );
 
-                // load class
-                String className = this.getClassName(filePath);
-                logger.info("Class name = " + className);
-                Class<?> loadedClass = classLoader.loadClass(className);
-                logger.info("Finish loading !!!!");
+            // load class
+            String className = this.getClassName(filePath);
+            logger.info("Class name = " + className);
+            Class<?> loadedClass = classLoader.loadClass(className);
+            logger.info("Finish loading !!!!");
 
-                Object obj = loadedClass.getDeclaredConstructor().newInstance();
-                if (obj instanceof CustomJob) {
-                    // execute job
-                    CustomJob customJob = (CustomJob) obj;
-                    customJob.execute();
-                }
-                else {
-                    logger.info("OBJ isn't implemented CustomJob.class");
-                }
+            Object obj = loadedClass.getDeclaredConstructor().newInstance();
+            if (obj instanceof CustomJob) {
+                // execute job
+                CustomJob customJob = (CustomJob) obj;
+                customJob.execute();
             }
+            else {
+                logger.info("OBJ isn't implemented CustomJob.class");
+            }
+        }
 
+        catch (Exception ex) {
+            logger.info(ex.getMessage());
+        }
+
+        finally {
+            //close loader
+            try {
+                classLoader.close();
+            }
             catch (Exception ex) {
                 logger.info(ex.getMessage());
             }
-
-            finally {
-                //close loader
-                try {
-                    classLoader.close();
-                }
-                catch (Exception ex) {
-                    logger.info(ex.getMessage());
-                }
-            }
-        }
-        else {
-            for (Diagnostic<? extends JavaFileObject> diagnostic: this.diagnosticListener.getDiagnostics()) {
-                logger.info("Error at " + diagnostic.getLineNumber() 
-                        + " : " + diagnostic.getColumnNumber()
-                        + " - Message: " + diagnostic.getMessage(Locale.ENGLISH));
-            }            
         }
     }
 
@@ -273,9 +274,9 @@ public class AWSCustomExecuter implements JobExecuter {
         //TODO: Access file outside classpath
         File targetFile = this.loadOutSideResource(actionFilePath);
         //TODO: Compile java to class byte code
-        CompilationTask task = this.compileCustomClassAtRuntime(targetFile);
+        this.compileCustomClassAtRuntime(targetFile);
         //TODO: Load class byte code 
-        this.loadAndExecuteClassAtRuntime(task, targetFile.getPath());
+        this.loadAndExecuteClassAtRuntime(targetFile.getPath());
     }
 
 }
