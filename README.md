@@ -6,7 +6,7 @@ Automatically arrange based on specific predefined firing schedules and periodic
 
 - Sent an event to AWS SQS 
 - Sent an event to AWS Kinesis
-- Schedule a job by loading and reloading class during runtime
+- Schedule a custom java-coded job
 
 ## Required enviroment variables 
 
@@ -57,6 +57,11 @@ jobList:
     cronTrigger: "0/5 * * * * ?"
     usedService: "Kinesis"
     lambdaActionFile: "xyz/ghi/dfc.java"
+
+  - name: "Custom job #6"
+    cronTrigger: "0/2 * * * * ?"
+    usedService: "Custom"
+    actionFile: "/AWSCronJob/CustomJobs/CustomJobImpl.java"
 ```
 
 Plain java object (POJO) represent a legitimate job
@@ -84,6 +89,24 @@ public class AWSJob extends Object {
 
 }
 ```
+
+A Custom job must be implement interface ``` com.github.datnguyenzzz.Interfaces.CustomJob ```. An example of legitimate custom job:
+
+```
+package CronJobActionFiles;
+import com.github.datnguyenzzz.Interfaces.CustomJob;
+
+public class CustomJobImpl implements CustomJob {
+    private void pre(String yell) {
+        System.out.println("Void invoked - " + yell);
+    }
+    public void execute() {
+        pre("THIS IS SPARTA !!!!");
+        System.out.println("THIS IS CUSTOM JOB !!!");
+    }
+}
+```
+
 
 ## REST Api list:
 
