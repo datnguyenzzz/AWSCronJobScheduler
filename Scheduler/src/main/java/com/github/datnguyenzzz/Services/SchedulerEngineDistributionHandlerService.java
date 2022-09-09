@@ -43,8 +43,6 @@ public class SchedulerEngineDistributionHandlerService {
      * @apiNote Return appropriate schedule engine to handle the job 
      * */ 
     public SchedulerEngine getAppropriateEngine() {
-        //TODO: current just use a scheduler as singleton
-
         return this.schedulerEngine;
     }
 
@@ -100,7 +98,8 @@ public class SchedulerEngineDistributionHandlerService {
         for (JobKey jobKey : this.jobRepository.keySet()) {
             count++;
             logger.info("JOB #" + count + ": ");
-            logger.info("\t Name : " + jobKey.toString());
+            logger.info("\t Job name : " + jobKey.toString());
+            logger.info("\t Engine name :" + this.jobRepository.get(jobKey).getName());
 
             //find engine where jobKey reside
             SchedulerEngine schedulerEngine = this.getSchedulerEngineByJobKey(jobKey);
