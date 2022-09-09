@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.quartz.impl.matchers.GroupMatcher;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import com.github.datnguyenzzz.Components.ConsistentHashingStructure;
 import com.github.datnguyenzzz.Components.SchedulerEngine;
 import com.github.datnguyenzzz.Entities.HealthStatus;
 
@@ -26,7 +28,7 @@ import com.github.datnguyenzzz.Entities.HealthStatus;
 public class SchedulerEngineDistributionHandlerService {
 
     @Autowired
-    private SchedulerEngine schedulerEngine;
+    private ConsistentHashingStructure consistentHashingStructure;
 
     @Autowired
     private HealthCheckService healthCheckService;
@@ -42,8 +44,9 @@ public class SchedulerEngineDistributionHandlerService {
     /**
      * @apiNote Return appropriate schedule engine to handle the job 
      * */ 
-    public SchedulerEngine getAppropriateEngine() {
-        return this.schedulerEngine;
+    public SchedulerEngine getAppropriateEngine(JobDetail jobDetail) {
+        JobKey jobKey = jobDetail.getKey();
+        return this.consistentHashingStructure.getEngine(jobKey.toString());
     }
 
     /**

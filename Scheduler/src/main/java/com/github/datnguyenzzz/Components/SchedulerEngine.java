@@ -23,9 +23,9 @@ import com.github.datnguyenzzz.Factories.QuartzCronJobFactory;
 
 @Component
 @Scope("prototype")
-public class SchedulerEngine {
+public class SchedulerEngine extends Object {
     
-    private final static int MAX_NAME_LENGTH = 15;
+    private final static int MAX_NAME_LENGTH = 30;
 
     private Scheduler scheduler;
     private String name;
@@ -42,6 +42,11 @@ public class SchedulerEngine {
             buffer.append((char) randomLimitedInt);
         }
         return buffer.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return this.name.hashCode();
     }
 
     @Autowired
