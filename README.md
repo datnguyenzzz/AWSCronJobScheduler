@@ -64,7 +64,7 @@ jobList:
     actionFile: "/AWSCronJob/CustomJobs/CustomJobImpl.java"
 ```
 
-Plain java object (POJO) represent a legitimate job
+Plain java object (POJO) represent a job
 
 ```
 public class AWSJob extends Object {
@@ -90,7 +90,7 @@ public class AWSJob extends Object {
 }
 ```
 
-A Custom job must be implement interface ``` com.github.datnguyenzzz.Interfaces.CustomJob ```. An example of legitimate custom job:
+A Custom job must be implement interface ``` com.github.datnguyenzzz.Interfaces.CustomJob ```. An example of custom job:
 
 ```
 package CronJobActionFiles;
