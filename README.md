@@ -64,7 +64,7 @@ jobList:
     actionFile: "/AWSCronJob/CustomJobs/CustomJobImpl.java"
 ```
 
-Plain java object (POJO) represent a legitimate job
+Plain java object (POJO) represent a job
 
 ```
 public class AWSJob extends Object {
