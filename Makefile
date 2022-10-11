@@ -6,7 +6,9 @@ build:
 	docker-compose ps
 
 buildFront:
+#compress all code into production deployable package
 	npm run build --prefix ./frontend 
+#serve -s build
 
 destroy:
 	docker-compose down

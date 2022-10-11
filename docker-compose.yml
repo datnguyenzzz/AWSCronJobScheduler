@@ -25,3 +25,14 @@ services:
       NUM_SCHEDULER_ENGINES: ${NUM_SCHEDULER_ENGINE}
 
     command: "java -Xmx256m -jar /AWSCronJob/scheduler.jar"
+
+  frontend:
+    container_name: frontend
+    build: 
+      context: ./frontend
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend:/frontend
+    command: "npm start"
+    #command: "serve -s build"
