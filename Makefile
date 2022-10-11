@@ -10,6 +10,9 @@ buildFront:
 	npm run build --prefix ./frontend 
 #serve -s build
 
+startFront:
+	npm start --prefix ./frontend
+
 destroy:
 	docker-compose down
 	docker volume prune  -f
