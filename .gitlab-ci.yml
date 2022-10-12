@@ -1,9 +1,17 @@
 stages:
+  - install
   - build
   - test
   - deploy
 
-build_dependencies:
+install_node:
+  stage: install
+  script:
+    - apt-get update -y
+    - curl -sL https://deb.nodesource.com/setup_17.x | bash
+    - apt-get install nodejs -yq
+
+clean_dependencies:
   stage: build
   script:
     - echo "Start building dependencies ...."
