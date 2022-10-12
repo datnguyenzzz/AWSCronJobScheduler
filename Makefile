@@ -2,18 +2,17 @@ DOCKER_NETWORK = awscronjob_default
 
 build:
 	mvn clean install
-	docker-compose --env-file ./Env/test.env up -d 
+	docker-compose --env-file ./Env/test.env -f docker-compose-backend.yml -f docker-compose-frontend.yml up -d
 	docker-compose ps
 
 buildFront:
-#compress all code into production deployable package
-	npm run build --prefix ./frontend 
-#serve -s build
+	cd frontend && npm run build
+	docker-compose -f docker-compose-frontend.yml up -d
 
 startFront:
-	npm start --prefix ./frontend
+	cd frontend && npm start
 
 destroy:
-	docker-compose down
+	docker-compose -f docker-compose-backend.yml -f docker-compose-frontend.yml down
 	docker volume prune  -f
 	docker container prune  -f
