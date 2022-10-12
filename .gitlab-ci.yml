@@ -1,18 +1,13 @@
+image: node:latest
+
 stages:
-  - install
+  - clean
   - build
   - test
   - deploy
 
-install_node:
-  stage: install
-  script:
-    - apt-get update -y
-    - curl -sL https://deb.nodesource.com/setup_17.x | bash
-    - apt-get install nodejs -yq
-
 clean_dependencies:
-  stage: build
+  stage: clean
   script:
     - echo "Start building dependencies ...."
     - mvn clean package
