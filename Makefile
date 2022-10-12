@@ -2,7 +2,7 @@ DOCKER_NETWORK = awscronjob_default
 
 build:
 	mvn clean install
-	docker-compose --env-file ./Env/test.env -f docker-compose-backend.yml -f docker-compose-frontend.yml up -d
+	docker-compose --env-file ./Env/test.env -f docker-compose-backend.yml up -d
 	docker-compose ps
 
 buildFront:
