@@ -25,6 +25,10 @@ build_backend_docker_image:
 
 build_frontend_docker_image:
   stage: build
+  before_script:
+    - cd frontend
+    - npm run build
+    - cd ..
   script:
     - echo "Start building frontend docker image"
     - docker-compose -f docker-compose-frontend.yml up -d
