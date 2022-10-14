@@ -8,4 +8,4 @@ const Pokedex: FC = () => {
     )
 }
 
-export default Pokedex;
+export default Pokedex
