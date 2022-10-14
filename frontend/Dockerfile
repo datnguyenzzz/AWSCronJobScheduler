@@ -7,6 +7,7 @@ ENV PATH /frontend/node_modules/.bin:$PATH
 
 #install
 RUN npm install serve
-RUN npm install --save-dev eslint eslint-config-airbnb eslint-config-prettier eslint-plugin-import eslint-plugin-jsx-a11y eslint-plugin-prettier eslint-plugin-react
+RUN npm install --save-dev eslint-plugin-react
+
 
 COPY /build /frontend/build
