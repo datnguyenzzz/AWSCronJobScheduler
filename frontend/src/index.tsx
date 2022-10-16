@@ -1,14 +1,15 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import Pokedex from './components/Pokedex/Pokedex'
+import { BrowserRouter as Router } from 'react-router-dom'
 import Sidenav from './components/Sidenav/Sidenav'
 import reportWebVitals from './reportWebVitals'
+import AppRoute from './routes/AppRoute'
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(
-    <>
-        <Sidenav/>
-    </>
+    <Router>
+        <AppRoute />
+    </Router>
 )
 
 // If you want to start measuring performance in your app, pass a function
