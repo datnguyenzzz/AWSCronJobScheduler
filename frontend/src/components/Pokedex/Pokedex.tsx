@@ -2,6 +2,7 @@ import React, { FC } from "react"
 import { SWRConfig } from "swr"
 import fetcher from "../../tools/fetcher"
 import { StyledTitle } from "./Pokedex.styled"
+import PokedexContainer from "./PokedexContainer"
 
 const Pokedex: FC<{}> = () => {
     return (
@@ -12,7 +13,7 @@ const Pokedex: FC<{}> = () => {
                     fetcher,
                     suspense: true,
                 }}>
-                <div>Content</div>
+                <PokedexContainer />
             </SWRConfig>
         </>
     )
