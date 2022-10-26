@@ -26,14 +26,17 @@ const PokedexContent: FC<Props> = ({ pokemonLimit }) => {
 
     return (
         <>
-            {results.map((pokemon: PokemonType, index:number) => {
-                return (
+            {results.map((pokemon: PokemonType, index:number) => (
                     <Suspense key={index}
-                        fallback = {<StyledGrid><Skeleton/></StyledGrid>}>
+                        fallback = {
+                            <StyledGrid>
+                                <Skeleton height={200} width={200}/>
+                                <p>Loading...</p>
+                            </StyledGrid>
+                        }>
                         <Pokemon key={pokemon.name} name={pokemon.name} url = {pokemon.url} />
                     </Suspense>
-                )
-            })}
+            ))}
         </>
     )
 }

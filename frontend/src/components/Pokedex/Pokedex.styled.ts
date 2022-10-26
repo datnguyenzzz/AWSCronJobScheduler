@@ -8,8 +8,8 @@ export const StyledTitle = styled.h1`
 export const StyledPokedex = styled.div`
     display: flex;
     flex-wrap: wrap;
-    flex-flow: row-wrap;
-    margin: 0 auto;
+    flex-flow: row wrap;
+    margin: auto;
     width: 90%;
 `
 
@@ -46,8 +46,6 @@ export const StyledCard = styled.div<Props>`
     position: relative;
     ${({ pokemonType }) => `
         background: ${type[pokemonType]} no-repeat;
-        background-size: 60%;
-        backgorund-position: center;
     `}
     color: #000;
     font-size: 20px;

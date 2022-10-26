@@ -1,4 +1,4 @@
-import React, { FC } from "react"
+import React, { FC, useState } from "react"
 import useSWR from "swr"
 import { StyledCard } from "./Pokedex.styled"
 
@@ -30,10 +30,25 @@ const Pokemon: FC<Props> = ({name, url}) => {
         pTypes.type.name
     ))
 
-    console.log(pokemonTypes[0])
+    //view shiny
+    const [shiny, setShiny] = useState<boolean>(false)
+
+    //console.log(pokemonTypes[0])
     return (
         <StyledCard pokemonType={pokemonTypes[0]}>
-            <p>{name}</p>
+            <div>
+                <h2>{name}</h2>
+                <button onClick={() => {
+                    setShiny(oldShiny => !oldShiny)
+                }}> Shiny</button>
+                <div>#{id}</div>
+            </div>
+            {
+                !shiny ?
+                    <img alt={name} src={sprites.front_default} />
+                    : <img alt={name} src={sprites.front_shiny} />
+            }
+
         </StyledCard>
     )
 }
