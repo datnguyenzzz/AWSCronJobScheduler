@@ -24,7 +24,6 @@ const PokedexContent: FC<Props> = ({ pokemonLimit }) => {
 
     return (
         <>
-            {console.log(results)}
             {results.map((pokemon: PokemonType, index:number) => {
                 return (
                     <Suspense key={index} fallback = {<p>Loading...</p>}>
