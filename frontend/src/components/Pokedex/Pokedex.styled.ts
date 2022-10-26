@@ -61,3 +61,13 @@ export const StyledCard = styled.div<Props>`
         display: block;
     }
 `
+
+export const StyledGrid = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    flex-flow: row wrap;
+    div {
+        margin-right: 5px;
+        margin-bottom: 5px;
+    }
+`
