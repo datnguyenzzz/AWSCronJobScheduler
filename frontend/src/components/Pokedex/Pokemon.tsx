@@ -1,13 +1,10 @@
 import React, { FC } from "react"
 import useSWR from "swr"
+import { StyledCard } from "./Pokedex.styled"
 
 type Props = {
     name: string,
     url: string
-}
-
-type PokemonType = {
-    type: string
 }
 
 type ApiType = {
@@ -29,15 +26,15 @@ const Pokemon: FC<Props> = ({name, url}) => {
 
     //extract needed infos
     const { id, sprites, types} = data
-    const pokemonTypes: PokemonType[] = types.map((pTypes:ApiType) => (
+    const pokemonTypes: string[] = types.map((pTypes:ApiType) => (
         pTypes.type.name
     ))
 
-    //console.log(pokemonTypes)
+    console.log(pokemonTypes[0])
     return (
-        <>
+        <StyledCard pokemonType={pokemonTypes[0]}>
             <p>{name}</p>
-        </>
+        </StyledCard>
     )
 }
 
