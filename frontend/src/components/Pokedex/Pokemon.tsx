@@ -49,6 +49,12 @@ const Pokemon: FC<Props> = ({name, url}) => {
                     : <img alt={name} src={sprites.front_shiny} />
             }
 
+            <div>
+                {pokemonTypes.map((pokemonType:string) => (
+                    <div key={pokemonType}> {pokemonType} </div>
+                ))}
+            </div>
+
         </StyledCard>
     )
 }
