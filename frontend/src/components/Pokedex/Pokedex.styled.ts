@@ -60,6 +60,32 @@ export const StyledCard = styled.div<Props>`
     }
 `
 
+export const StyledCardHeader = styled.div`
+    display: flex;
+    justify-content: space-evenly;
+    flex-flow: column wrap;
+
+    h2 {
+        margin: 5px;
+        color: white;
+        text-transform: capitalize;
+        align-self: center;
+    }
+
+    div {
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+        margin-top: 5px;
+        align-self: center;
+    }
+
+    button {
+        align-self: center;
+        size: 60%;
+    }
+`
+
 export const StyledGrid = styled.div`
     display: flex;
     flex-wrap: wrap;

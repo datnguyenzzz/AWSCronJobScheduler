@@ -1,6 +1,6 @@
 import React, { FC, useState } from "react"
 import useSWR from "swr"
-import { StyledCard } from "./Pokedex.styled"
+import { StyledCard, StyledCardHeader } from "./Pokedex.styled"
 
 type Props = {
     name: string,
@@ -36,13 +36,13 @@ const Pokemon: FC<Props> = ({name, url}) => {
     //console.log(pokemonTypes[0])
     return (
         <StyledCard pokemonType={pokemonTypes[0]}>
-            <div>
+            <StyledCardHeader>
                 <h2>{name}</h2>
                 <button onClick={() => {
                     setShiny(oldShiny => !oldShiny)
                 }}> Shiny</button>
                 <div>#{id}</div>
-            </div>
+            </StyledCardHeader>
             {
                 !shiny ?
                     <img alt={name} src={sprites.front_default} />
