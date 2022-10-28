@@ -1,6 +1,6 @@
 import React, { FC, useState } from "react"
 import useSWR from "swr"
-import { StyledCard, StyledCardHeader } from "./Pokedex.styled"
+import { StyledCard, StyledCardHeader, StyledCardType, StyledCardTypeList } from "./Pokedex.styled"
 
 type Props = {
     name: string,
@@ -40,7 +40,11 @@ const Pokemon: FC<Props> = ({name, url}) => {
                 <h2>{name}</h2>
                 <button onClick={() => {
                     setShiny(oldShiny => !oldShiny)
-                }}> Shiny</button>
+                }}>
+                    {
+                        shiny ? "Normal" : "Shiny"
+                    }
+                </button>
                 <div>#{id}</div>
             </StyledCardHeader>
             {
@@ -49,11 +53,11 @@ const Pokemon: FC<Props> = ({name, url}) => {
                     : <img alt={name} src={sprites.front_shiny} />
             }
 
-            <div>
+            <StyledCardTypeList>
                 {pokemonTypes.map((pokemonType:string) => (
-                    <div key={pokemonType}> {pokemonType} </div>
+                    <StyledCardType key={pokemonType} pokemonType={pokemonType}> {pokemonType} </StyledCardType>
                 ))}
-            </div>
+            </StyledCardTypeList>
 
         </StyledCard>
     )

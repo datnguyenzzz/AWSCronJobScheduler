@@ -35,7 +35,6 @@ const type: any = {
     water: '#58ABF6'
 }
 
-
 //passed props into css
 
 type Props = {
@@ -94,4 +93,26 @@ export const StyledGrid = styled.div`
         margin-right: 5px;
         margin-bottom: 5px;
     }
+`
+
+export const StyledCardTypeList = styled.div`
+    display: flex;
+    margin-left: 10px;
+    margin-bottom: 8px;
+    justify-content: space-evenly;
+`
+
+export const StyledCardType = styled.span<Props>`
+    ${({ pokemonType }) => `
+        color: ${type[pokemonType]} !important;
+    `}
+    background: #3F3E3E;
+    display: inline-block;
+    font-weight: bold;
+    text-transform: capitalize;
+    margin-right: 3px;
+    padding: 10px;
+    align-self: center;
+    font-size: 90%;
+    border-radius: 20px;
 `
