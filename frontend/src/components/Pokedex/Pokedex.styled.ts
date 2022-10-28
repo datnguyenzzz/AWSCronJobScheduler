@@ -29,7 +29,7 @@ const type: any = {
     ice: '#C8DDEA',
     normal: '#ccc',
     poison: '#cc89ff',
-    psychic: '#705548',
+    psychic: '#F112EE',
     rock: '#b7b7b7',
     steel: '#999',
     water: '#58ABF6'
@@ -56,6 +56,8 @@ export const StyledCard = styled.div<Props>`
         margin-left: auto;
         margin-right: auto;
         display: block;
+        max-height: 100%;
+        max-width: 100%;
     }
 `
 

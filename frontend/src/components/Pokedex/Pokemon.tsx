@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react"
+import React, { FC, Suspense, useEffect, useState } from "react"
 import useSWR from "swr"
 import { StyledCard, StyledCardHeader, StyledCardType, StyledCardTypeList } from "./Pokedex.styled"
 
@@ -32,26 +32,32 @@ const Pokemon: FC<Props> = ({name, url}) => {
 
     //view shiny
     const [shiny, setShiny] = useState<boolean>(false)
+    const [image, setImage] = useState<string>(sprites.front_default)
+
+    const onSwitchImage = () => {
+        setImage(process.env.PUBLIC_URL + "/loading.png")
+        setShiny(oldShiny => !oldShiny)
+    }
+
+    useEffect(() => {
+        if (shiny) setImage(sprites.front_shiny)
+        else setImage(sprites.front_default)
+    }, [shiny])
 
     //console.log(pokemonTypes[0])
     return (
         <StyledCard pokemonType={pokemonTypes[0]}>
             <StyledCardHeader>
                 <h2>{name}</h2>
-                <button onClick={() => {
-                    setShiny(oldShiny => !oldShiny)
-                }}>
+                <button onClick={onSwitchImage}>
                     {
                         shiny ? "Normal" : "Shiny"
                     }
                 </button>
                 <div>#{id}</div>
             </StyledCardHeader>
-            {
-                !shiny ?
-                    <img alt={name} src={sprites.front_default} />
-                    : <img alt={name} src={sprites.front_shiny} />
-            }
+
+            <img alt={name} src={image} />
 
             <StyledCardTypeList>
                 {pokemonTypes.map((pokemonType:string) => (
