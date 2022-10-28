@@ -106,7 +106,7 @@ export const StyledCardTypeList = styled.div`
 
 export const StyledCardType = styled.span<Props>`
     ${({ pokemonType }) => `
-        color: ${type[pokemonType]} !important;
+        color: ${type[pokemonType]};
     `}
     background: #3F3E3E;
     display: inline-block;

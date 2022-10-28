@@ -10,6 +10,6 @@ RUN npm install serve
 RUN npm install --save-dev eslint-plugin-react
 RUN npm install --save-dev react-minimal-side-navigation
 RUN npm install --save-dev swr react-loading-skeleton styled-components
-
+RUN npm install --save-dev style-loader css-loader
 
 COPY /build /frontend/build

@@ -42,10 +42,12 @@
     "@babel/preset-react": "^7.18.6",
     "@types/react-router-dom": "^5.3.3",
     "@types/styled-components": "^5.1.26",
+    "css-loader": "^6.7.1",
     "eslint-plugin-react": "^7.31.10",
     "react-loading-skeleton": "^3.1.0",
     "react-minimal-side-navigation": "^1.9.2",
     "react-router-dom": "^6.4.2",
+    "style-loader": "^3.3.1",
     "styled-components": "^5.3.6",
     "swr": "^1.3.0",
     "typescript": "^4.8.4"
