@@ -1,13 +1,25 @@
 import React, { FC } from "react"
-import Layout from "../Layout/Layout"
+import { Route, Routes } from "react-router-dom"
+import Home from "../Home/Home"
+import Pokedex from "../Pokedex/Pokedex"
 import Sidenav from "../Sidenav/Sidenav"
+import "./App.css"
 
 const App: FC<{}> = () => {
     return (
-        <>
-            <Sidenav/>
-            <Layout/>
-        </>
+        <div className="layout">
+            <div>
+                <Sidenav/>
+            </div>
+
+            <div className="main_content">
+                <Routes>
+                    <Route path="/home" element={<Home/>}/>
+                    <Route path="/funny/pokedex" element = {<Pokedex/>} />
+                </Routes>
+            </div>
+
+        </div>
     )
 }
 

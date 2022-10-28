@@ -25,7 +25,8 @@ const Sidenav: FC<{}> = () => {
     const navigate = useNavigate()
 
     return (
-        <>
+        <div>
+            <div>My app</div>
             <Navigation
                 activeItemId="/home"
                 onSelect={({itemId}) => {
@@ -34,7 +35,7 @@ const Sidenav: FC<{}> = () => {
                 }}
                 items = {navItems}
             />
-        </>
+        </div>
     )
 }
 
