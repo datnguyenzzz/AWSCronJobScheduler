@@ -76,11 +76,9 @@ export const StyledCardHeader = styled.div`
 
 export const StyledGrid = styled.div`
     display: flex;
-    flex-wrap: wrap;
     flex-flow: row wrap;
     div {
-        margin-right: 5px;
-        margin-bottom: 5px;
+        margin: 5px;
     }
 `
 

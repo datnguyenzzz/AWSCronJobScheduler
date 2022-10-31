@@ -2,6 +2,7 @@ import React, { FC, Suspense } from "react"
 import useSWR from "swr"
 import { StyledGrid } from "./Pokedex.styled"
 import Skeleton from "react-loading-skeleton"
+import "react-loading-skeleton/dist/skeleton.css"
 import Pokemon from "./Pokemon"
 
 const END_POINT: string = 'https://pokeapi.co/api/v2/'
@@ -30,8 +31,9 @@ const PokedexContent: FC<Props> = ({ pokemonLimit }) => {
                     <Suspense key={index}
                         fallback = {
                             <StyledGrid>
-                                <Skeleton height={200} width={200}/>
-                                <p>Loading...</p>
+                                <div>
+                                    <Skeleton height={200} width={200}/>
+                                </div>
                             </StyledGrid>
                         }>
                         <Pokemon key={pokemon.name} name={pokemon.name} url = {pokemon.url} />
