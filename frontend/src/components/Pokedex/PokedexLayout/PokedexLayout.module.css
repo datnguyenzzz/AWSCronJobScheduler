@@ -5,3 +5,8 @@
     margin: auto;
     width: 90%;
 }
+
+.styled_title {
+    text-align: center;
+    size: 20;
+}

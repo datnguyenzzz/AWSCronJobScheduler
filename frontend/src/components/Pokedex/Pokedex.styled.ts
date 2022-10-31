@@ -1,18 +1,5 @@
 import styled from "styled-components"
 
-export const StyledTitle = styled.h1`
-    text-align: center;
-    size: 20;
-`
-
-export const StyledPokedex = styled.div`
-    display: flex;
-    flex-wrap: wrap;
-    flex-flow: row wrap;
-    margin: auto;
-    width: 90%;
-`
-
 // color
 export const type: any = {
     bug: '#52BC04',

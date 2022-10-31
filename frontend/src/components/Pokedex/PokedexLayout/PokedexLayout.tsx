@@ -1,14 +1,15 @@
 import React, { FC } from "react"
 import { SWRConfig } from "swr"
 import fetcher from "../../../tools/fetcher"
-import { StyledPokedex, StyledTitle } from "../Pokedex.styled"
 import PokedexContainer from "../PokedexContainer"
 import styles from "./PokedexLayout.module.css"
 
 const PokedexLayout: FC<{}> = () => {
     return (
         <>
-            <StyledTitle> Pokedex </StyledTitle>
+            <h1 className={styles.styled_title}> '
+                Pokedex
+            </h1>
             <SWRConfig
                 value = {{
                     fetcher,
