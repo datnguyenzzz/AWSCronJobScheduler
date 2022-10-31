@@ -14,8 +14,8 @@ export const StyledPokedex = styled.div`
 `
 
 // color
-const type: any = {
-    bug: '#2ADAB1',
+export const type: any = {
+    bug: '#52BC04',
     dark: '#636363',
     dragon: '#E9B057',
     electric: '#ffeb5b',

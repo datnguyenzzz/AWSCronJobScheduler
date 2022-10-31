@@ -1,10 +1,11 @@
 import React, { FC } from "react"
 import { SWRConfig } from "swr"
-import fetcher from "../../tools/fetcher"
-import { StyledPokedex, StyledTitle } from "./Pokedex.styled"
-import PokedexContainer from "./PokedexContainer"
+import fetcher from "../../../tools/fetcher"
+import { StyledPokedex, StyledTitle } from "../Pokedex.styled"
+import PokedexContainer from "../PokedexContainer"
+import styles from "./PokedexLayout.module.css"
 
-const Pokedex: FC<{}> = () => {
+const PokedexLayout: FC<{}> = () => {
     return (
         <>
             <StyledTitle> Pokedex </StyledTitle>
@@ -13,12 +14,12 @@ const Pokedex: FC<{}> = () => {
                     fetcher,
                     suspense: true,
                 }}>
-                <StyledPokedex>
+                <div className={styles.styled_pokedex}>
                     <PokedexContainer />
-                </StyledPokedex>
+                </div>
             </SWRConfig>
         </>
     )
 }
 
-export default Pokedex
+export default PokedexLayout

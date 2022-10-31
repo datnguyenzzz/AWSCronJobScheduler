@@ -1,0 +1,7 @@
+.styled_pokedex {
+    display: flex;
+    flex-wrap: wrap;
+    flex-flow: row wrap;
+    margin: auto;
+    width: 90%;
+}
