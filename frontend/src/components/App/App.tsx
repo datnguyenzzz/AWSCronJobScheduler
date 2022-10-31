@@ -3,16 +3,16 @@ import { Route, Routes } from "react-router-dom"
 import Home from "../Home/Home"
 import Pokedex from "../Pokedex/Pokedex"
 import Sidenav from "../Sidenav/Sidenav"
-import "./App.css"
+import styles from "./App.module.css"
 
 const App: FC<{}> = () => {
     return (
-        <div className="layout">
+        <div className={styles.layout}>
             <div>
                 <Sidenav/>
             </div>
 
-            <div className="main_content">
+            <div className={styles.main_content}>
                 <Routes>
                     <Route path="/home" element={<Home/>}/>
                     <Route path="/funny/pokedex" element = {<Pokedex/>} />
