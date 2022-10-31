@@ -1,5 +1,5 @@
 import React, { FC, Suspense } from "react"
-import PokedexContent from "../PokedexContent"
+import PokedexContent from "../PokedexContent/PokedexContent"
 
 const PokedexContainer: FC<{}> = () => {
     return (

@@ -1,0 +1,8 @@
+.styled_grid {
+    display: flex;
+    flex-flow: row wrap;
+}
+
+.styled_grid .styled_col {
+    margin: 5px;
+}
