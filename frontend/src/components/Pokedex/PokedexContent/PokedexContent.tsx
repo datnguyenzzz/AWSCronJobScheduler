@@ -1,7 +1,7 @@
 import React, { FC, Suspense } from "react"
 import useSWR from "swr"
 import Skeleton from "react-loading-skeleton"
-import Pokemon from "../Pokemon"
+import Pokemon from "../Pokemon/Pokemon"
 import "react-loading-skeleton/dist/skeleton.css"
 import styles from "./PokedexContent.module.css"
 

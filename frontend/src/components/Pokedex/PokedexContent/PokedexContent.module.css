@@ -3,6 +3,6 @@
     flex-flow: row wrap;
 }
 
-.styled_grid .styled_col {
+div.styled_grid > div {
     margin: 5px;
 }

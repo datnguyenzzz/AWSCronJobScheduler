@@ -1,6 +1,7 @@
 import React, { FC, Suspense, useEffect, useState } from "react"
 import useSWR from "swr"
-import { StyledCard, StyledCardHeader, StyledCardType, StyledCardTypeList } from "./Pokedex.styled"
+
+import styles from "./Pokemon.module.css"
 
 type Props = {
     name: string,
@@ -45,9 +46,14 @@ const Pokemon: FC<Props> = ({name, url}) => {
     }, [shiny])
 
     //console.log(pokemonTypes[0])
+
+    const cardColorStyle = {
+        background: `var(--${pokemonTypes[0]})`
+    }
+
     return (
-        <StyledCard pokemonType={pokemonTypes[0]}>
-            <StyledCardHeader>
+        <div className={styles.style_card} style={cardColorStyle}>
+            <div className={styles.styled_card_header}>
                 <h2>{name}</h2>
                 <button onClick={onSwitchImage}>
                     {
@@ -55,17 +61,26 @@ const Pokemon: FC<Props> = ({name, url}) => {
                     }
                 </button>
                 <div>#{id}</div>
-            </StyledCardHeader>
+            </div>
 
             <img alt={name} src={image} />
 
-            <StyledCardTypeList>
-                {pokemonTypes.map((pokemonType:string) => (
-                    <StyledCardType key={pokemonType} pokemonType={pokemonType}> {pokemonType} </StyledCardType>
-                ))}
-            </StyledCardTypeList>
+            <div className={styles.styled_card_typeList}>
+                {pokemonTypes.map((pokemonType:string) => {
 
-        </StyledCard>
+                    const individualColorType = {
+                        color: `var(--${pokemonType})`
+                    }
+                    return (
+                        <span key={pokemonType} className={styles.styled_card_type}
+                            style={individualColorType}>
+                            {pokemonType}
+                        </span>
+                    )
+                })}
+            </div>
+
+        </div>
     )
 }
 
