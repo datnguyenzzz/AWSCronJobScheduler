@@ -17,7 +17,7 @@ const Pokemon: FC<Props> = ({name, url}) => {
 
     const {data, error} = useSWR(url)
 
-    if (error || data.error) {
+    if (data === null || data === undefined || error || data.error) {
         return <div/>
     }
 
@@ -72,7 +72,8 @@ const Pokemon: FC<Props> = ({name, url}) => {
                         color: `var(--${pokemonType})`
                     }
                     return (
-                        <span key={pokemonType} className={styles.styled_card_type}
+                        <span key={pokemonType}
+                            className={styles.styled_card_type}
                             style={individualColorType}>
                             {pokemonType}
                         </span>

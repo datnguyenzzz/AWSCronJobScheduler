@@ -8,9 +8,8 @@ import styles from "./App.module.css"
 const App: FC<{}> = () => {
     return (
         <div className={styles.layout}>
-            <div>
-                <Sidenav/>
-            </div>
+
+            <Sidenav/>
 
             <div className={styles.main_content}>
                 <Routes>

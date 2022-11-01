@@ -1,7 +1,7 @@
 import React, { FC } from "react"
 import { Navigation, NavItemProps } from 'react-minimal-side-navigation'
 import 'react-minimal-side-navigation/lib/ReactMinimalSideNavigation.css'
-import { useLocation, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 
 const navItems: NavItemProps[] = [
     {
@@ -26,7 +26,7 @@ const Sidenav: FC<{}> = () => {
 
     return (
         <div>
-            <div>My app</div>
+            <h1>My app</h1>
             <Navigation
                 activeItemId="/home"
                 onSelect={({itemId}) => {
