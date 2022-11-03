@@ -53,7 +53,7 @@ public class AddJobServiceImpl implements AddJobService {
     public void addNewJob(AWSJob awsJob) {
         try {
             JobDetail jobDetail = this.jobGenerator.genPublishingJobDetail(awsJob);
-            SchedulerEngine targetEngine = this.scheduleService.getAppropriateEngine();
+            SchedulerEngine targetEngine = this.scheduleService.getAppropriateEngine(jobDetail);
             targetEngine.addJob(jobDetail, false);
 
             // store into repository
@@ -170,7 +170,7 @@ public class AddJobServiceImpl implements AddJobService {
     public void scheduleJob(JobDetail jobDetail, Trigger trigger) {
         try {
             //get appropriate scheduler
-            SchedulerEngine schedulerEngine = this.scheduleService.getAppropriateEngine();
+            SchedulerEngine schedulerEngine = this.scheduleService.getAppropriateEngine(jobDetail);
             schedulerEngine.scheduleJob(jobDetail, trigger);
         }
         catch (Exception ex) {
