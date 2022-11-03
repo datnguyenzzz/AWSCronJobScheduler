@@ -1,28 +1,53 @@
+image: node:latest
+
 stages:
+  - prepare
   - build
   - test
-  - deploy 
+  - deploy
 
-build_dependencies:
-  stage: build
+clean_dependencies:
+  stage: prepare
   script:
     - echo "Start building dependencies ...."
     - mvn clean package
     - echo "Done"
 
-build_docker_image:
+build_backend_docker_image:
   stage: build
   script:
-    - echo "Start building docker image ..."
-    - docker-compose --env-file ./Env/test.env up -d 
-    - docker-compose down
+    - echo "Start building backend docker image ..."
+    - docker-compose --env-file ./Env/test.env -f docker-compose-backend.yml up -d
+    - docker-compose -f docker-compose-backend.yml down
     - echo "Done"
+  except:
+    - frontend
+
+build_frontend_docker_image:
+  stage: build
+  before_script:
+    - cd frontend
+    - npm install
+    - npm run build
+    - cd ..
+  script:
+    - echo "Start building frontend docker image"
+    - docker-compose -f docker-compose-frontend.yml up -d
+    - docker-compose -f docker-compose-frontend.yml down
 
 test_internal_API:
   stage: test
   script:
     - echo "Start testing internal API..."
     - mvn test
+    - echo "Done"
+  except:
+    - frontend
+
+test_frontend:
+  stage: test
+  script:
+    - echo "Start testing front end ..."
     - echo "Done"
 
 deploy_project:
@@ -33,9 +58,9 @@ deploy_project:
     - docker login -u "$CD_DOCKER_HUB_USER" -p "$CD_DOCKER_HUB_PASSWORD"
   script:
     - echo "Start deploying to Docker hub ..."
-    - docker-compose --env-file ./Env/deploy.env up -d
+    - docker-compose --env-file ./Env/test.env -f docker-compose-backend.yml up -d
     - docker push "$CD_DOCKER_HUB_IMAGE"
-    - docker-compose down
+    - docker-compose -f docker-compose-backend.yml down
     - echo "Done"
   only:
     - master
