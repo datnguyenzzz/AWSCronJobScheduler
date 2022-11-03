@@ -36,7 +36,7 @@ const Pokemon: FC<Props> = ({name, url}) => {
     const [image, setImage] = useState<string>(sprites.front_default)
 
     const onSwitchImage = () => {
-        setImage(process.env.PUBLIC_URL + "/loading.png")
+        setImage("https://www.freeiconspng.com/uploads/load-icon-png-0.png")
         setShiny(oldShiny => !oldShiny)
     }
 
